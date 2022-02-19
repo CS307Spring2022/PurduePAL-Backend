@@ -8,7 +8,6 @@ from create_user import sign_up
 app = Flask(__name__)
 db = pymongo.MongoClient(os.getenv("CONN"))
 
-
 @app.route('/')  # default nonsense
 def hello_world():
     return 'Hello World!'
