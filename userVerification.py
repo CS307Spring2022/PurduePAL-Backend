@@ -18,3 +18,13 @@ def checkUsername(username):
 def checkEmail(email):
 	if not email.contains("^\S+@purdue.edu$"):
 		return Errors.EMAIL_ERROR
+
+def checkPasswordLength(password):
+	if len(password) < 8:
+		return Errors.PASSWORD_ERROR
+		print("Password must be at least 8 characters long")
+
+def confirmPassword(password, confirmation):
+	if password != confirmation:
+		return Errors.PASSWORD_ERROR
+		print("Passwords don't match")
