@@ -5,6 +5,7 @@ pwd_context = CryptContext(
         pbkdf2_sha256__default_rounds=30000
 )
 
+
 def safeget(obj, *keys, default=None):
     """Retrieve values from nested keys in a dict safely.
     :param _dict: The dict containing the desired keys and values.
@@ -36,4 +37,6 @@ def check_password(password: str, hashed: str) -> bool:
     try:
         return pwd_context.verify(password, hashed)
     except ValueError:
+        return False
+    except TypeError:
         return False

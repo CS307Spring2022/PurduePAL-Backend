@@ -13,11 +13,13 @@ db = pymongo.MongoClient(os.getenv("CONN"))
 def hello_world():
     return 'Hello World!'
 
+
 @app.route('/sign_up', methods=['POST'])
 def sign_up_process():
     data = request.json
     created = sign_up(data)
     return jsonify({"return_code": created})
+
 
 if __name__ == '__main__':
     app.run(use_reloader=True, debug=False)
