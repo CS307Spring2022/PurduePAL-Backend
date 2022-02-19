@@ -19,7 +19,7 @@ def sign_up(data: dict) -> bool:
         return False
 
 
-def add_bio_to_user(data: dict) -> bool:
+def add_bio_to_user(data: dict, update_db: bool = True) -> bool:
     email = safeget(data, "email")
     if not email:
         return False
@@ -28,7 +28,10 @@ def add_bio_to_user(data: dict) -> bool:
         return False
     if len(bio) > 160:
         return False
-    stat = db["users"].update_one(filter={"_id": email}, update={"$set": {"bio": bio}})  # update user with email
-    if stat.matched_count == 0:
-        return False
+    if update_db:
+        # print("HERE")
+        stat = db["users"].update_one(filter={"_id": email}, update={"$set": {"bio": bio}})  # update user with email
+        print("THERE")
+        if stat.matched_count == 0:
+            return False
     return True
