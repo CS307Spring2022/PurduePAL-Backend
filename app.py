@@ -1,12 +1,7 @@
-import os
-
 from flask import Flask, request, jsonify
-import pymongo
-
-from create_user import sign_up
+from create_user import sign_up, add_bio_to_user
 
 app = Flask(__name__)
-db = pymongo.MongoClient(os.getenv("CONN"))
 
 
 @app.route('/')  # default nonsense
@@ -20,6 +15,13 @@ def sign_up_process():
     created = sign_up(data)
     return jsonify({"return_code": created})
 
+
+@app.route('/add_bio', methods=['POST'])
+def add_bio():
+    data = request.json
+    # should contain email and bio
+    added_bio = add_bio_to_user(data)
+    return jsonify({"return_code": added_bio})
 
 if __name__ == '__main__':
     app.run(use_reloader=True, debug=False)
