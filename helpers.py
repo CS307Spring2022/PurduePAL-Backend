@@ -1,3 +1,10 @@
+from passlib.context import CryptContext
+pwd_context = CryptContext(
+        schemes=["pbkdf2_sha256"],
+        default="pbkdf2_sha256",
+        pbkdf2_sha256__default_rounds=30000
+)
+
 def safeget(obj, *keys, default=None):
     """Retrieve values from nested keys in a dict safely.
     :param _dict: The dict containing the desired keys and values.
@@ -19,3 +26,14 @@ def safeget(obj, *keys, default=None):
     if val is None:
         return default
     return val
+
+
+def encrypt_password(password: str) -> str:
+    return pwd_context.hash(password)
+
+
+def check_password(password: str, hashed: str) -> bool:
+    try:
+        return pwd_context.verify(password, hashed)
+    except ValueError:
+        return False

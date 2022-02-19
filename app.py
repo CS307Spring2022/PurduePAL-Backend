@@ -16,8 +16,8 @@ def hello_world():
 @app.route('/sign_up', methods=['POST'])
 def sign_up_process():
     data = request.json
-    sign_up(data)
-    return jsonify({"hi": "lol"})
+    created = sign_up(data)
+    return jsonify({"return_code": created})
 
 if __name__ == '__main__':
     app.run(use_reloader=True, debug=False)

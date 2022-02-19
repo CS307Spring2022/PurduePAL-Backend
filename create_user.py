@@ -17,3 +17,4 @@ def sign_up(data: dict) -> bool:
     password = safeget(data, "password")
     if not password:
         return False
+
