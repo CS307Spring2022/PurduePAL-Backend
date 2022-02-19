@@ -1,9 +1,11 @@
+import os
+
 from flask import Flask
 import pymongo
 
 app = Flask(__name__)
-# pymongo.MongoClient(connect="kslsfhsjkf")
-
+db = pymongo.MongoClient(os.getenv("CONN"))
+# print(db["admin"])
 
 @app.route('/')  # default nonsense
 def hello_world():
