@@ -25,6 +25,6 @@ def checkPasswordLength(password):
 		print("Password must be at least 8 characters long")
 
 def confirmPassword(password, confirmation):
-	if not password == confirmation:
+	if password != confirmation:
 		return Errors.PASSWORD_ERROR
 		print("Passwords don't match")
