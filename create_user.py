@@ -20,7 +20,6 @@ def sign_up(data: dict) -> bool:
 
 
 def add_bio_to_user(data: dict) -> bool:
-    print(data)
     email = safeget(data, "email")
     if not email:
         return False
