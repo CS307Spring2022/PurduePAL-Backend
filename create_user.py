@@ -1,4 +1,4 @@
-from helpers import safeget
+from helpers import safeget, db
 
 
 def sign_up(data: dict) -> bool:
@@ -18,3 +18,18 @@ def sign_up(data: dict) -> bool:
     if not password:
         return False
 
+
+def add_bio_to_user(data: dict) -> bool:
+    print(data)
+    email = safeget(data, "email")
+    if not email:
+        return False
+    bio = safeget(data, "bio")
+    if not bio:
+        return False
+    if len(bio) > 160:
+        return False
+    stat = db["users"].update_one(filter={"_id": email}, update={"$set": {"bio": bio}})  # update user with email
+    if stat.matched_count == 0:
+        return False
+    return True

@@ -1,4 +1,9 @@
+import os
+
+import pymongo
 from passlib.context import CryptContext
+db = pymongo.MongoClient(os.getenv("CONN"))["PurduePAL"]
+
 pwd_context = CryptContext(
         schemes=["pbkdf2_sha256"],
         default="pbkdf2_sha256",
