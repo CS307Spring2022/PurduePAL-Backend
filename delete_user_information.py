@@ -22,6 +22,9 @@ def delete_user_with_conf_code(data: dict, live: bool = True) -> bool:
         status = db["users"].delete_one(filter={"_id": email, "confirmation_code": conf_code})
         if status.deleted_count != 1:
             return False
+        status = db["posts"].delete_many(filter={"poster": email})
+        if not status.acknowledged:
+            return False
         return True
 
 
