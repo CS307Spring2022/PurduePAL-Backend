@@ -35,5 +35,10 @@ class ProfileTest(unittest.TestCase):
         self.assertFalse(added)
 
 
+class DeleteUserStuff(unittest.TestCase):
+    def test_delete_post(self):
+        self.assertTrue(True)
+
+
 if __name__ == '__main__':
     unittest.main()

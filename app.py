@@ -39,9 +39,13 @@ def delete_user():
     other_data = request.args.to_dict()
     if safeget(other_data, "confirmation_code"):
         status = delete_user_with_conf_code(other_data)
+        if status:
+            return "Account Deleted"
+        else:
+            return "Please try again"
     else:
         status = delete_user_without_conf_code(data)
-    return jsonify({"no": status})
+        return jsonify({"return_code": status}), status
 
 
 if __name__ == '__main__':

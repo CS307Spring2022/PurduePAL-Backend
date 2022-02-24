@@ -1,7 +1,7 @@
 import os
 import ssl, smtplib
 from random import randint
-
+import urllib.request
 import pymongo
 from passlib.context import CryptContext
 db = pymongo.MongoClient(os.getenv("CONN"))["PurduePAL"]
@@ -10,7 +10,7 @@ port = os.getenv("PORT")
 sender_email = os.getenv("SENDER_EMAIL")
 password = os.getenv("PASSWORD")
 context = ssl.create_default_context()  # to send email
-
+ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
 pwd_context = CryptContext(
         schemes=["pbkdf2_sha256"],
         default="pbkdf2_sha256",
@@ -75,11 +75,12 @@ def send_email(subject: str, text: str, to_email: str) -> bool:
             server.starttls(context=context)
             server.ehlo()  # Can be omitted
             server.login(sender_email, password)
-            net_text = f"""\
-            Subject: {subject}
+            net_text = f"""\\
+            From: lolsieskana@gmail.com
+            Subject: {subject}"
             
             {text}"""
-            server.sendmail(sender_email, to_email, net_text)
+            server.sendmail(from_addr=sender_email, to_addrs=to_email, msg=net_text)
             return True
     except Exception as e:
         print(e)
