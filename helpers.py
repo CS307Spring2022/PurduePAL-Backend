@@ -84,3 +84,14 @@ def send_email(subject: str, text: str, to_email: str) -> bool:
     except Exception as e:
         print(e)
         return False
+
+
+def verifyConfirmation(to_email: str):
+    conf_code = generate_confirmation_code
+    subject = "Purdue PAL: Verify Confirmation for Account Creation"
+    content = "Please click the following link to verify your account: " + conf_code
+
+    send_email(subject,content, to_email)
+
+    #check that user is not already active
+    #check if link has been clicked
