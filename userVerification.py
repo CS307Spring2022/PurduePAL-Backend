@@ -10,7 +10,7 @@ def checkUsername(username):
 
 	if not username.contains("[a-zA-Z0-9]*"):
 		return Errors.USERNAME_ERROR
-		print("Username can only contain alphanum characters")
+		print("Username can only contain alphanum characters.")
 	
 	else:
 		return
@@ -18,13 +18,14 @@ def checkUsername(username):
 def checkEmail(email):
 	if not email.contains("^\S+@purdue.edu$"):
 		return Errors.EMAIL_ERROR
+		print("Please use a valid purdue.edu email.")
 
 def checkPasswordLength(password):
 	if len(password) < 8:
 		return Errors.PASSWORD_ERROR
-		print("Password must be at least 8 characters long")
+		print("Password must be at least 8 characters long.")
 
 def confirmPassword(password, confirmation):
 	if password != confirmation:
 		return Errors.PASSWORD_ERROR
-		print("Passwords don't match")
+		print("Passwords don't match!")
