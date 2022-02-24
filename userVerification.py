@@ -4,7 +4,7 @@ import re
 from error import Errors
 
 def checkUsername(username):
-	if len(username) > 13 or len(username) < 4:
+	if len(username) > 15 or len(username) < 4:
 		return Errors.USERNAME_ERROR
 		print("Username must be between 4-13 characters long.")
 
