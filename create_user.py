@@ -16,8 +16,11 @@ def add_bio_to_user(data: dict, update_db: bool = True) -> bool:
         return False
     email = safeget(data, "email")
     bio = safeget(data, "bio")
+    first_name = safeget(data, "firstName")
+    last_name = safeget(data, "lastName")
     if len(bio) > 160:
         return False
+
     if update_db:
         stat = db["users"].update_one(filter={"_id": email}, update={"$set": {"bio": bio}})  # update user with email
         if stat.matched_count == 0:

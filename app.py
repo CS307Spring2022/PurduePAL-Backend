@@ -6,6 +6,7 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
+
 @app.route('/')  # default nonsense
 def hello_world():
     return 'Hello World!'
@@ -18,7 +19,7 @@ def sign_up_process():
     return jsonify({"return_code": created})
 
 
-@app.route('/add_bio', methods=['POST'])
+@app.route('/update', methods=['POST'])
 def add_bio():
     data = request.json
     # should contain email and bio
