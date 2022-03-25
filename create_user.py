@@ -22,7 +22,7 @@ def add_bio_to_user(data: dict, update_db: bool = True) -> bool:
         return False
 
     if update_db:
-        stat = db["users"].update_one(filter={"_id": email}, update={"$set": {"bio": bio}})  # update user with email
+        stat = db["users"].update_one(filter={"_id": email}, update={"$set": {"bio": bio, "firstName": first_name, "lastName": last_name}})  # update user with email
         if stat.matched_count == 0:
             return False
     return True
