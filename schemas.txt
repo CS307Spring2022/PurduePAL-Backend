@@ -1,0 +1,99 @@
+"""
+"User Document": {
+        "_id": "email",
+        "username": "string",
+        "profilePic": "string(base64 encoded)",
+        "bio": "string",
+        "firstName": "string",
+        "lastName": "string",
+        "phoneNumber": "string",
+        "dateOfBirth": "datetime",
+        "public": "boolean",
+		"userline": [
+            "PostObject(Id)",
+            "PostObject(Id)",
+            "PostObject(Id)"
+        ]
+        "interactionsLine" : [
+            {
+                "interactionType": "responsePost,like,dislike,etc.",
+                "post": "PostObject(Id)"
+            }
+        ],
+
+        "originalPostCount": "int",
+        "interactionsPostCount": "int",
+		"followersCount": "int",
+		"followingCount": "int",
+		"topicsCount": "int",
+
+
+
+        "savedPostsLine": [
+            "PostObject(Id)",
+            "PostObject(Id)",
+            "PostObject(Id)"
+        ],
+
+        "following": [
+            "UserObject(Id)",
+            "UserObject(Id)",
+            "UserObject(Id)"
+        ],
+        "followers": [
+            "UserObject(Id)",
+            "UserObject(Id)"   
+        ],
+
+        "topicsFollowing": [
+            "TopicID", 
+			"TopicID"
+        ]
+
+    }
+"""
+
+
+
+"Post Document": {
+        #unique to each post
+        "postID": "uuid",
+
+        #user who creates the post
+        "user": "UserObject(Id)",
+
+        #time of creation
+        "timestamp": "datetime",
+
+        #is comment
+        "isComment": "boolean",
+
+        #if isComment, id of parent post
+        "parentId": "null or PostObject(Id)",
+
+        #topic associated with post
+        "topic": "string",
+
+        #content type
+        "contentType": "string(text, image, video)",
+
+        #text/img/url
+        "content": "string (could be base64 encoded",
+
+        #number of likes
+        "likeCount": "int",
+
+        #number of dislikes
+        "dislikeCount": "int",
+
+        #array of comments
+        "comments" : [
+            "PostObject(Id)",
+            "PostObject(Id)",
+            "PostObject(Id)"
+        ],
+
+        #number of comments
+        "commentCount": "int (not recursive count, only level 1, i.e (len(respnses))"
+    }
+"""
