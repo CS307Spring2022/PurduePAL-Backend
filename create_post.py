@@ -16,6 +16,9 @@ def create_post(data: dict, isComment = False) -> bool:
 	return_val = db["posts"].insert_one({"topic": topic, "user": user, "timestamp": timestamp, "likeCount": likeCount, "dislikeCount": dislikeCount,
 	"isComment": isComment, "content": content, "comments": comments, "commentCount": commentCount, "parentID": parent_id})
 
+	if isComment:
+		db["posts"].update_one({"_id": parent_id}, {"$push": {"comments": return_val.inserted_id}})
+
 	if not return_val.acknowledged:
 		return False
 	return True
