@@ -15,10 +15,10 @@ def hello_world():
     return 'Hello World!'
 
 
-# @app.route('/getUser', methods=['GET'])
-# def getUser():
-#     data = request.args.to_dict()
-#     return jsonify(getUserInfo(data))
+@app.route('/getUser', methods=['GET'])
+def getUser():
+    data = request.args.to_dict()
+    return jsonify(getUserInfo(data).pop("profilePic"))
 
 
 @app.route('/sign_up', methods=['POST'])
