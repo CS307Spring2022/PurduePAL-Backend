@@ -1,4 +1,5 @@
-from helpers import safeget, db, check_for_data
+from helpers import safeget, db, check_for_data, encrypt_password
+from userVerification import checkEmail, checkUsername, checkPasswordLength
 
 
 def sign_up(data: dict) -> bool:
@@ -9,6 +10,15 @@ def sign_up(data: dict) -> bool:
     email = safeget(data, "email")
     username = safeget(data, "username")
     password = safeget(data, "password")
+    if checkEmail(email) or checkUsername(username) or checkPasswordLength(password):  # verification errors
+        return False
+    if db["users"].find_one({"_id": email}) or db["users"].find_one({"username": username}):
+        return False
+    return_val = db["users"].insert_one({"_id": email, "firstName": first_name, "lastName": last_name,
+                                         "username": username, "password": encrypt_password(password)})
+    if not return_val.acknowledged:
+        return False
+    return True
 
 
 def add_bio_to_user(data: dict, update_db: bool = True) -> bool:

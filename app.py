@@ -3,6 +3,9 @@ from create_user import sign_up, add_bio_to_user
 from delete_user_information import delete_post_from_db, delete_user_with_conf_code, delete_user_without_conf_code
 from helpers import safeget
 from flask_cors import CORS
+
+from userLogin import login
+
 app = Flask(__name__)
 CORS(app)
 
@@ -19,12 +22,19 @@ def sign_up_process():
     return jsonify({"return_code": created})
 
 
+@app.route('/login', methods=['POST'])
+def login_process():
+    data = request.json
+    loggedIn, email = login(data)
+    return jsonify({"return_code": loggedIn, "email": email})
+
 @app.route('/update', methods=['POST'])
 def add_bio():
     data = request.json
     # should contain email and bio
     added_bio = add_bio_to_user(data)
-    return jsonify({"return_code": added_bio})
+    status_code = 200 if added_bio else 403
+    return jsonify({"return_code": added_bio}), status_code
 
 
 @app.route('/delete_post', methods=['POST'])
