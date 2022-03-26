@@ -17,7 +17,7 @@ def checkUsername(username):
         return
 
 
-def unique_user(data: dict, username: str) -> bool:
+def unique_user(data: dict, username: str):
     username_exists = db["users"].find_one(filter={"username": username})
 
     if username_exists:
