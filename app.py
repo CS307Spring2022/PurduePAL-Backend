@@ -27,6 +27,7 @@ def sign_up_process():
 def login_process():
     data = request.json
     loggedIn, email = login(data)
+    status_code = 200 if loggedIn else 403
     return jsonify({"return_code": loggedIn, "email": email})
 
 @app.route('/update', methods=['POST'])
