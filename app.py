@@ -28,7 +28,7 @@ def login_process():
     data = request.json
     loggedIn, email = login(data)
     status_code = 200 if loggedIn else 403
-    return jsonify({"return_code": loggedIn, "email": email})
+    return jsonify({"return_code": loggedIn, "email": email}), status_code
 
 @app.route('/update', methods=['POST'])
 def add_bio():
