@@ -1,13 +1,11 @@
-
-
+import time
 from helpers import safeget, db
 
 
 def create_post(data: dict) -> bool:
-	
 	topic = safeget(data, "topicName")
 	user = safeget(data, "user")
-	timestamp = safeget(data, "timestamp")
+	timestamp = int(time.time())
 	likeCount = 0
 	dislikeCount = 0
 	isComment = False

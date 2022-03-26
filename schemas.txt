@@ -7,7 +7,7 @@
         "firstName": "string",
         "lastName": "string",
         "phoneNumber": "string",
-        "dateOfBirth": "datetime",
+        "dateOfBirth": "int",
         "public": "boolean",
 		"userline": [
             "PostObject(Id)",
@@ -63,7 +63,7 @@
         "user": "UserObject(Id)",
 
         #time of creation
-        "timestamp": "datetime",
+        "timestamp": "int",
 
         #is comment
         "isComment": "boolean",

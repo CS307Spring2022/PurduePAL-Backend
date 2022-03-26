@@ -1,4 +1,6 @@
 from flask import Flask, request, jsonify
+
+from create_post import create_post
 from create_user import sign_up, add_bio_to_user, getUserInfo
 from delete_user_information import delete_post_from_db, delete_user_with_conf_code, delete_user_without_conf_code
 from helpers import safeget
@@ -13,6 +15,14 @@ CORS(app)
 @app.route('/')  # default nonsense
 def hello_world():
     return 'Hello World!'
+
+
+@app.route('/create_post')
+def create_post_process():
+    data = request.json
+    created_post = create_post(data)
+    status_code = 200 if created_post else 404
+    return jsonify({"return_code": created_post}), status_code
 
 
 @app.route('/getUser', methods=['GET'])
