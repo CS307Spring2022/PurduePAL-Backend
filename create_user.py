@@ -7,7 +7,6 @@ def getUserInfo(data: dict) -> dict:
         return {}
     email = safeget(data, "email")
     info = db["users"].find_one({"_id": email})
-    print(type(info))
     return info
 
 
