@@ -20,12 +20,16 @@ def hello_world():
 @app.route('/create_post')
 def create_post_process():
     data = request.json
-    created_post = create_post(data)
+    if safeget(data, "parentID"):
+        isComment = False
+    else:
+        isComment = True
+    created_post = create_post(data, isComment)
     status_code = 200 if created_post else 404
     return jsonify({"return_code": created_post}), status_code
 
 
-@app.route('create_comment')
+@app.route('/create_comment')
 def create_comment_process():
     data = request.json
     created_comment = create_post(data, True)
