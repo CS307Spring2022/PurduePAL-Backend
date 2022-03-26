@@ -2,13 +2,12 @@ import time
 from helpers import safeget, db
 
 
-def create_post(data: dict) -> bool:
+def create_post(data: dict, isComment = False) -> bool:
 	topic = safeget(data, "topicName")
 	user = safeget(data, "user")
 	timestamp = int(time.time())
 	likeCount = 0
 	dislikeCount = 0
-	isComment = False
 	content = safeget(data, "content")
 	comments = []
 	commentCount = 0

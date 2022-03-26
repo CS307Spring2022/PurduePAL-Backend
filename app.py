@@ -25,6 +25,14 @@ def create_post_process():
     return jsonify({"return_code": created_post}), status_code
 
 
+@app.route('create_comment')
+def create_comment_process():
+    data = request.json
+    created_comment = create_post(data, True)
+    status_code = 200 if created_comment else 404
+    return jsonify({"return_code": created_comment}), status_code
+
+
 @app.route('/getUser', methods=['GET'])
 def getUser():
     data = request.args.to_dict()
