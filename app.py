@@ -18,7 +18,10 @@ def hello_world():
 @app.route('/getUser', methods=['GET'])
 def getUser():
     data = request.args.to_dict()
-    return jsonify(getUserInfo(data).pop("profilePic"))
+    user_data = getUserInfo(data)
+    if safeget(user_data, "profilePic"):
+        user_data.pop("profilePic")
+    return jsonify(user_data)
 
 
 @app.route('/sign_up', methods=['POST'])
