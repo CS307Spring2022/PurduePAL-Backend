@@ -3,10 +3,10 @@ from userVerification import checkEmail, checkUsername, checkPasswordLength
 
 
 def sign_up(data: dict) -> bool:
-    if not check_for_data(data, "first_name", "last_name", "email", "username", "password"):
+    if not check_for_data(data, "firstName", "lastName", "email", "username", "password"):
         return False
-    first_name = safeget(data, "first_name")
-    last_name = safeget(data, "last_name")
+    first_name = safeget(data, "firstName")
+    last_name = safeget(data, "lastName")
     email = safeget(data, "email")
     username = safeget(data, "username")
     password = safeget(data, "password")
