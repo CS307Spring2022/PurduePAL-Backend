@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from create_user import sign_up, add_bio_to_user
+from create_user import sign_up, add_bio_to_user, getUserInfo
 from delete_user_information import delete_post_from_db, delete_user_with_conf_code, delete_user_without_conf_code
 from helpers import safeget
 from flask_cors import CORS
@@ -12,11 +12,17 @@ def hello_world():
     return 'Hello World!'
 
 
+# @app.route('/getUser', methods=['GET'])
+# def getUser():
+#     data = request.args.to_dict()
+#     return jsonify(getUserInfo(data))
+
+
 @app.route('/sign_up', methods=['POST'])
 def sign_up_process():
     data = request.json
     created = sign_up(data)
-    return jsonify({"return_code": created})
+    return {"return_code": created}
 
 
 @app.route('/update', methods=['POST'])
