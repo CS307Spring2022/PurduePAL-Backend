@@ -2,20 +2,23 @@ from helpers import check_password, safeget, db, check_for_data
 from error import Errors
 
 
-def login(data:dict, email: str, given_pass: str) ->bool:
-	email_exists = db["users"].find_one(filter={"_id": email})
+def login(data: dict) -> (bool, str):
+	if not check_for_data(data, "email", "password"):
+		return False
+	email = data["email"]
+	password = data["password"]
+	email_exists = db["users"].find_one(filter={"$or": [{"_id": email}, {"username": email}]})
 
 	if email_exists:
-		email_value = email_exists["email"]
 		hashed_pass = email_exists["password"]
-		if check_password(hashed_pass, given_pass):
-			return True
+		if check_password(password, hashed_pass):
+			return True, email_exists["_id"]
 		else:
 			#wrong password entered
-			return Errors.PASSWORD_ERROR
+			return False, ""
 	else:
 		#email doesnt exist
-		return Errors.EMAIL_ERROR
+		return False, ""
 		
 	
 
