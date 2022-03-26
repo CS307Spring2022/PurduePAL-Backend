@@ -10,6 +10,9 @@ def sign_up(data: dict) -> bool:
     email = safeget(data, "email")
     username = safeget(data, "username")
     password = safeget(data, "password")
+    confirmPassword = safeget(data, "confirmPassword")
+    if not password == confirmPassword:
+        return False
     if checkEmail(email) or checkUsername(username) or checkPasswordLength(password):  # verification errors
         return False
     if db["users"].find_one({"_id": email}) or db["users"].find_one({"username": username}):
