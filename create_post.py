@@ -4,7 +4,7 @@ from helpers import safeget, db
 
 def create_post(data: dict, isComment = False) -> bool:
 	topic = safeget(data, "topicName")
-	user = safeget(data, "user")
+	user = safeget(data, "user", "anonymous@purdue.edu")
 	timestamp = int(time.time())
 	likeCount = 0
 	dislikeCount = 0
