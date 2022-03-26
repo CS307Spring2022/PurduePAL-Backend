@@ -19,7 +19,8 @@ def hello_world():
 def sign_up_process():
     data = request.json
     created = sign_up(data)
-    return jsonify({"return_code": created})
+    status_code = 200 if created else 400
+    return jsonify({"return_code": created}), status_code
 
 
 @app.route('/login', methods=['POST'])
