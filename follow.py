@@ -1,44 +1,88 @@
+import email
+from email.message import EmailMessage
 import pymongo
+from helpers import safeget, db, check_for_data
 
-user_follow_topic(userID, topicID) {
+user_follow_topic(email: str, topicID):
 
-	userID
-	#append topic to topics following
+	user = db["users"].find_one({"_id": email})
+	new_values = { "$push": { "topicsFollowing": topicID} }
+	
+	db.update_one(user, new_values)
 
+	new_topics_count = user["topicsCount"] + 1
+	new_values = { "$set": {"topicsCount": new_topics_count}}
 
-	#increment topicCount
-
-
-}
-
-user_unfollow_topic(userID, topicID) {
-
-}
+	db.update_one(user, new_values)
 
 
-user_follow_user(userID, followID) {
+user_unfollow_topic(email:str, topicID):
 
-}
+	user = db["users"].find_one({"_id": email})
+	new_values = { "$pull": { "topicsFollowing": topicID} }
+	
+	db.update_one(user, new_values)
 
-user_unfollow_user(userID, unfollowID) {
+	new_topics_count = user["topicsCount"] - 1
+	new_values = { "$set": {"topicsCount": new_topics_count}}
+	
+	db.update_one(user, new_values)
 
-}
+
+user1_follow_user2(user1id: str, user2id: str) -> bool:
+
+	user1 = db["users"].find_one({"_id": user1id})
+	user2 = db["users"].find_one({"_id": user2id})
+
+	isPublic = user2["public"]
+
+	if not isPublic:
+		return False
+
+	#update user 1 following
+	new_values = { "$push": { "following": user2id} }
+	db.update_one(user1, new_values)
+
+	#update user2 followers
+	new_values = { "$push": {"followers": user1id} }
+	db.update_one(user2, new_values)
+
+	return True
+	
+
+user_unfollow_user(userID, unfollowID) -> bool:
+
+	user1 = db["users"].find_one({"_id": user1id})
+	user2 = db["users"].find_one({"_id": user2id})
+
+	isPublic = user2["public"]
+
+	if not isPublic:
+		return False
+
+	#update user 1 following
+	new_values = { "$push": { "following": user2id} }
+	db.update_one(user1, new_values)
+
+	#update user2 followers
+	new_values = { "$push": {"followers": user1id} }
+	db.update_one(user2, new_values)
 
 
-user_save_post(userID, postID) {
+
+user_save_post(userID, postID):
 	#append post to savedPostsLine
 
-}
+
 
 # user_comment_post(userID, postID) {
 # 	#append to interactionsLine array 
 # }
 
-post_liked() {
+post_liked():
 	#increment
 
-}
 
-post_disliked() {
+post_disliked():
 	#decrement
-}
+
