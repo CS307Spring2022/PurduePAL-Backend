@@ -2,9 +2,11 @@ import os
 import ssl, smtplib
 from random import randint
 
+import certifi
+
 import pymongo
 from passlib.context import CryptContext
-db = pymongo.MongoClient(os.getenv("CONN"))["PurduePAL"]
+db = pymongo.MongoClient(os.getenv("CONN"),tlsCAFile=certifi.where())["PurduePAL"]
 smtp_server = os.getenv("SMTP_SERVER")
 port = os.getenv("PORT")
 sender_email = os.getenv("SENDER_EMAIL")

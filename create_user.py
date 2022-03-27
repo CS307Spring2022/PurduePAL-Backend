@@ -1,10 +1,11 @@
+from typing import Tuple
 from helpers import safeget, db, check_for_data, encrypt_password
 from userVerification import checkEmail, checkUsername, checkPasswordLength
 
 
-def sign_up(data: dict) -> bool:
+def sign_up(data: dict) -> Tuple[int,str]:
     if not check_for_data(data, "firstName", "lastName", "email", "username", "password"):
-        return False
+        return (500,"missing data")
     first_name = safeget(data, "firstName")
     last_name = safeget(data, "lastName")
     email = safeget(data, "email")
@@ -12,16 +13,21 @@ def sign_up(data: dict) -> bool:
     password = safeget(data, "password")
     confirmPassword = safeget(data, "confirmPassword")
     if not password == confirmPassword:
-        return False
+        print("password")
+        return (500,"conflicing passwords")
     if checkEmail(email) or checkUsername(username) or checkPasswordLength(password):  # verification errors
-        return False
-    if db["users"].find_one({"_id": email}) or db["users"].find_one({"username": username}):
-        return False
+        print(email, username, password)
+        return (500, "invalid lengths of fields")
+    if db["users"].find_one({"_id": email}):
+        return (400, "Email in Use!")
+    if db["users"].find_one({"username": username}):
+        return (400,"Username Taken! Please Choose Another.")
     return_val = db["users"].insert_one({"_id": email, "firstName": first_name, "lastName": last_name,
                                          "username": username, "password": encrypt_password(password)})
     if not return_val.acknowledged:
-        return False
-    return True
+        print("huh")
+        return (500, "mongodb error")
+    return (200,"success")
 
 
 def add_bio_to_user(data: dict, update_db: bool = True) -> bool:

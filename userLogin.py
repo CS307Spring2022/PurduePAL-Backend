@@ -1,8 +1,9 @@
+from typing import Tuple
 from helpers import check_password, safeget, db, check_for_data
 from error import Errors
 
 
-def login(data: dict) -> (bool, str):
+def login(data: dict) -> Tuple[bool, str]:
 	if not check_for_data(data, "email", "password"):
 		return False
 	email = data["email"]
