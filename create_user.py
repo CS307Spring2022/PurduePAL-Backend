@@ -3,6 +3,13 @@ from helpers import safeget, db, check_for_data, encrypt_password
 from userVerification import checkEmail, checkUsername, checkPasswordLength
 
 
+def getUserInfo(data: dict) -> dict:
+    if not check_for_data(data, "email"):
+        return {}
+    email = safeget(data, "email")
+    info = db["users"].find_one({"_id": email})
+    return info
+
 def sign_up(data: dict) -> Tuple[int,str]:
     if not check_for_data(data, "firstName", "lastName", "email", "username", "password"):
         return (500,"missing data")
