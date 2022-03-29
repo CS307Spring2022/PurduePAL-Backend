@@ -4,6 +4,7 @@ from delete_user_information import delete_post_from_db, delete_user_with_conf_c
 from helpers import safeget
 from flask_cors import CORS
 
+from topics_stuff import get_topics
 from userLogin import login
 
 app = Flask(__name__)
@@ -13,6 +14,12 @@ CORS(app)
 @app.route('/')  # default nonsense
 def hello_world():
     return 'Hello World!'
+
+
+@app.route('/topics', methods=['GET'])
+def getTopics():
+    topics = get_topics()
+    return jsonify(topics)
 
 
 @app.route('/getUser', methods=['GET'])
