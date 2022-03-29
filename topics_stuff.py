@@ -4,12 +4,12 @@ from helpers import db
 from bson import json_util
 
 
-def get_topics() -> dict:
+def get_topics() -> list:
     topics_cursor = db["topics"].find()
-    topics_dict = defaultdict()
+    topics_dict = []
     for topic in topics_cursor:
         topic["_id"] = json_util.dumps(topic["_id"])
         for i in range(len(topic["posts"])):
-            topic["posts"][i] = json_util.dumps(topic["posts"][i])
-        topics_dict[topic["topicName"]] = topic
+            topic["posts"][i] = json.loads(json_util.dumps(topic["posts"][i]))
+        topics_dict.append(topic)
     return topics_dict
