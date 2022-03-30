@@ -10,10 +10,11 @@ def user_follow_topic(email: str, topicID):
 
     db.update_one(user, new_values)
 
-    new_topics_count = user["topicsCount"] + 1
-    new_values = {"$set": {"topicsCount": new_topics_count}}
+    # updating topics count
 
-    db.update_one(user, new_values)
+    # new_topics_count = user["topicsCount"] + 1
+    # new_values = {"$set": {"topicsCount": new_topics_count}}
+    # db.update_one(user, new_values)
 
 
 def user_unfollow_topic(email: str, topicID):
@@ -22,10 +23,11 @@ def user_unfollow_topic(email: str, topicID):
 
     db.update_one(user, new_values)
 
-    new_topics_count = user["topicsCount"] - 1
-    new_values = {"$set": {"topicsCount": new_topics_count}}
-
-    db.update_one(user, new_values)
+    # updating topics count
+    
+    # new_topics_count = user["topicsCount"] - 1
+    # new_values = {"$set": {"topicsCount": new_topics_count}}
+    # db.update_one(user, new_values)
 
 
 def user1_follow_user2(user1id: str, user2id: str) -> bool:
