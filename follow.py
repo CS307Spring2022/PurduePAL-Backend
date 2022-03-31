@@ -23,16 +23,18 @@ def user_follow_topic(data):
 
     return True, "Success!"
 
+
 def get_followers(data):
-    userId = safeget(data,"email")
+    userId = safeget(data, "email")
 
     user_info = db["users"].find_one({"_id": userId})
-    
-    for i,user in enumerate(user_info["followingUsers"]):
-        following_user_info = db["users"].find_one({"_id":user})
-        user_info["followingUsers"][i] = {"name": following_user_info["firstName"]+" "+following_user_info["lastName"]}
-    
-    return True,{"msg":"Success!","newFollowing":user_info["followingUsers"]}
+
+    for i, user in enumerate(user_info["followingUsers"]):
+        following_user_info = db["users"].find_one({"_id": user})
+        user_info["followingUsers"][i] = {
+            "name": following_user_info["firstName"] + " " + following_user_info["lastName"]}
+
+    return True, {"msg": "Success!", "newFollowing": user_info["followingUsers"]}
 
 
 def user_unfollow_topic(data):

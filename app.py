@@ -1,5 +1,3 @@
-import json
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
@@ -55,10 +53,10 @@ def unfollow_user():
     return jsonify({"message": status})
 
 
-@app.route('/getFollowers',methods=["POST"])
+@app.route('/getFollowers', methods=["POST"])
 def getFollowers():
     data = request.json
-    success,data = get_followers(data)
+    success, data = get_followers(data)
     return_code = 200 if success else 400
     return jsonify(data), return_code
 
@@ -85,7 +83,7 @@ def getTimeline():
     return jsonify(posts), status_code
 
 
-@app.route('/getUser', methods=['GET','POST'])
+@app.route('/getUser', methods=['GET', 'POST'])
 def getUser():
     data = request.json
     user_data = getUserInfo(data)
@@ -97,8 +95,8 @@ def getUser():
         user_data.pop("password")
     user_data["match"] = data["loggedUser"] == data["profileUser"]
     if (not user_data["public"]):
-        return jsonify({"msg": "Profile is Private!"}),200
-    return jsonify(user_data),200
+        return jsonify({"msg": "Profile is Private!"}), 200
+    return jsonify(user_data), 200
 
 
 @app.route('/sign_up', methods=['POST'])
@@ -173,6 +171,7 @@ def savedPosts():
     posts, status_code = saved_posts(data)
     status_code = 200 if status_code else 400
     return jsonify(posts), status_code
+
 
 if __name__ == '__main__':
     app.run(use_reloader=True, debug=False)
