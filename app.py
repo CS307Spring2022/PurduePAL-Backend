@@ -90,7 +90,8 @@ def getUser():
     user_data = getUserInfo(data)
     if safeget(user_data, "profilePic"):
         user_data.pop("profilePic")
-    print(user_data)
+    user_data.pop("likedPosts")
+    user_data.pop("dislikedPosts")
     user_data.pop("password")
     user_data["match"] = data["loggedUser"] == data["profileUser"]
     if (not user_data["public"]):
