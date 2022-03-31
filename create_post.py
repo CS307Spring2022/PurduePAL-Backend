@@ -22,14 +22,14 @@ def update_topic(topic_id_dict, user_id_dict, post_id):
     resp = db["topics"].find(topic_id_dict)
     resp_docs = [i for i in resp]
     resp_len = len(resp_docs)
-    print(resp_len)
+    # print(resp_len)
 
     if (resp_len == 0):
         add_ret = db["topics"].insert_one(
             {"_id": topic_id_dict["_id"], "posts": [], "postCount": 0, "usersFollowing": [], "followersCount": 0})
-        print(add_ret.acknowledged)
-    else:
-        print(resp_docs)
+        # print(add_ret.acknowledged)
+    # else:
+    #     print(resp_docs)
 
     db["topics"].update_one(topic_id_dict, {"$push": {"posts": post_id}})
     db["topics"].update_one(topic_id_dict, {"$inc": {"postCount": 1}})
@@ -105,4 +105,5 @@ def reactPost(data: dict) -> bool:
             return False
     return True
 
-# def create_comment()
+# def save_post(data):
+#

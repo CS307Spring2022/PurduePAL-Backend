@@ -7,6 +7,8 @@ import certifi
 import pymongo
 from passlib.context import CryptContext
 
+# grid_fs = pymongo.MongoClient(os.getenv("CONN"), tlsCAFile=certifi.where()).gridfs_example
+# fs = grid_fs.GridFS(grid_fs)
 db = pymongo.MongoClient(os.getenv("CONN"), tlsCAFile=certifi.where())["PurduePAL"]
 smtp_server = os.getenv("SMTP_SERVER")
 port = os.getenv("PORT")

@@ -4,7 +4,7 @@ from typing import Tuple
 
 from bson import json_util
 
-from bson.binary import Binary
+import gridfs
 from helpers import safeget, db, check_for_data, encrypt_password
 from userVerification import checkEmail, checkUsername, checkPasswordLength
 
@@ -14,7 +14,6 @@ def getUserInfo(data: dict) -> dict:
         return {}
     user = safeget(data, "profileUser")
     info = db["users"].find_one({"username": user})
-    print(user)
     for i in range(len(info["userline"])):
         info["userline"][i] = loads(json_util.dumps(info["userline"][i]["post"]))
     for i,user in enumerate(info["usersFollowing"]):
@@ -26,11 +25,9 @@ def getUserInfo(data: dict) -> dict:
         if (user_info["_id"]==safeget(data,"loggedEmail")):
             info["loggedFollows"] = True
         info["followingUsers"][i] = {"name": user_info["firstName"]+" "+user_info["lastName"]}
-    
-    # print(info["profilePic"])
+
     info["profilePic"] = str(info["profilePic"])
-    # print(str(info["profilePic"]))
-    info["profilePic"] = info["profilePic"][2:(len(info["profilePic"]) - 1)] + "=="
+    info["profilePic"] = info["profilePic"][2:(len(info["profilePic"]) - 1)]
     info["profilePic"] = "data:image/png;base64," + info["profilePic"]
 
     return info
@@ -46,10 +43,8 @@ def sign_up(data: dict, testing=False) -> Tuple[int, str]:
     password = safeget(data, "password")
     confirmPassword = safeget(data, "confirmPassword")
     if not password == confirmPassword:
-        print("password")
         return 500, "conflicting passwords"
     if checkEmail(email) or checkUsername(username) or checkPasswordLength(password):  # verification errors
-        print(email, username, password)
         return 500, "invalid lengths of fields"
     if db["users"].find_one({"_id": email}):
         return 400, "Email in Use!"
@@ -88,11 +83,7 @@ def add_bio_to_user(data: dict, update_db: bool = True) -> bool:
 
 def save_profile_image(file, email) -> bool:
     encoded = base64.b64encode(file.read())
-    print(encoded)
-    # encoded = Binary(file.read())
     ret = db["users"].update_one({"_id": email}, {"$set": {"profilePic": encoded}})
-    print('here', ret.acknowledged)
-    # print(encoded[0])
     if not ret.acknowledged:
         return False
     return True
