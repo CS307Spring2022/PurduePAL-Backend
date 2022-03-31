@@ -1,6 +1,7 @@
 import re
-from helpers import db
+
 from error import Errors
+from helpers import db
 
 
 def checkUsername(username):
@@ -14,9 +15,10 @@ def checkUsername(username):
         return
 
 
-def unique_user(data: dict, username: str):
+def unique_user(username: str):
+    if username is None or username == "":
+        return Errors.USERNAME_ERROR
     username_exists = db["users"].find_one(filter={"username": username})
-
     if username_exists:
         # username already exists
         return Errors.USERNAME_ERROR

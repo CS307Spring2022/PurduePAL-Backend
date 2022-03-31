@@ -34,8 +34,11 @@ def delete_user_without_conf_code(data: dict, live: bool = True) -> bool:
     email = data["email"]
     if live:
         confirmation_code_generated = str(generate_confirmation_code())
-        status = db["users"].update_one(filter={"_id": email}, update={"$set": {"confirmation_code": confirmation_code_generated}})
-        send_email(to_email=email, text=f"0.0.0.0:5000/delete_user?confirmation_code={confirmation_code_generated}&email={email}", subject="Confirmation Code")
+        status = db["users"].update_one(filter={"_id": email},
+                                        update={"$set": {"confirmation_code": confirmation_code_generated}})
+        send_email(to_email=email,
+                   text=f"0.0.0.0:5000/delete_user?confirmation_code={confirmation_code_generated}&email={email}",
+                   subject="Confirmation Code")
         if status.modified_count != 1:
             return False
         return True

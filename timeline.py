@@ -1,20 +1,21 @@
-import datetime
-from typing import Tuple
-from helpers import safeget, db
-from bson import json_util
 from json import loads
+from typing import Tuple
+
+from bson import json_util
+
+from helpers import safeget, db
 
 
-def get_timeline(data: dict) -> Tuple[list[dict],bool]:
-    user_id = safeget(data,"email",default="anonymous@purdue.edu")
+def get_timeline(data: dict) -> Tuple[list[dict], bool]:
+    user_id = safeget(data, "email", default="anonymous@purdue.edu")
     user = [u for u in db["users"].find({"_id": user_id})]
     if (len(user) == 0):
-        return [{"val": "hi"}],False
+        return [{"val": "hi"}], False
     user = user[0]
     users_following = user["usersFollowing"]
     topics_following = user["topicsFollowing"]
 
-    posts_cursor = db["posts"].find({"topic":{"$in":topics_following}})
+    posts_cursor = db["posts"].find({"topic": {"$in": topics_following}})
 
     posts_dict = []
     for post in posts_cursor:
@@ -36,4 +37,4 @@ def get_timeline(data: dict) -> Tuple[list[dict],bool]:
             }
             post["user"] = poster
 
-    return posts_dict,True
+    return posts_dict, True
