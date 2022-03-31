@@ -29,9 +29,9 @@ def update_topic(topic_id_dict, user_id_dict, post_id):
     if (resp_len == 0):
         add_ret = db["topics"].insert_one(
             {"_id": topic_id_dict["_id"], "posts": [], "postCount": 0, "usersFollowing": [], "followersCount": 0})
-        # print(add_ret.acknowledged)
-    # else:
-    #     print(resp_docs)
+        print(add_ret.acknowledged)
+    else:
+        print(resp_docs)
 
     db["topics"].update_one(topic_id_dict, {"$push": {"posts": post_id}})
     db["topics"].update_one(topic_id_dict, {"$inc": {"postCount": 1}})
