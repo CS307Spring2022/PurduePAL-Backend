@@ -88,8 +88,6 @@ def getTimeline():
 def getUser():
     data = request.json
     user_data = getUserInfo(data)
-    if safeget(user_data, "profilePic"):
-        user_data.pop("profilePic")
     user_data.pop("likedPosts")
     user_data.pop("dislikedPosts")
     user_data.pop("password")
