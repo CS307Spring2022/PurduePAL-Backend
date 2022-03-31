@@ -34,10 +34,10 @@ def getUserInfo(data: dict) -> dict:
         if (user_info["_id"] == safeget(data, "loggedEmail")):
             info["loggedFollows"] = True
         info["followingUsers"][i] = {"name": user_info["firstName"] + " " + user_info["lastName"]}
-
-    info["profilePic"] = str(info["profilePic"])
-    info["profilePic"] = info["profilePic"][2:(len(info["profilePic"]) - 1)]
-    info["profilePic"] = "data:image/png;base64," + info["profilePic"]
+    if (safeget(info,"profilePic")):
+        info["profilePic"] = str(info["profilePic"])
+        info["profilePic"] = info["profilePic"][2:(len(info["profilePic"]) - 1)]
+        info["profilePic"] = "data:image/png;base64," + info["profilePic"]
 
     return info
 
@@ -71,10 +71,10 @@ def sign_up(data: dict, testing=False) -> Tuple[int, str]:
 
 
 def add_bio_to_user(data: dict, update_db: bool = True) -> bool:
-    if not check_for_data(data, "email", "bio"):
+    if not check_for_data(data, "email"):
         return False
     email = safeget(data, "email")
-    bio = safeget(data, "bio")
+    bio = safeget(data, "bio", default="")
     first_name = safeget(data, "firstName")
     last_name = safeget(data, "lastName")
     if len(bio) > 160:
