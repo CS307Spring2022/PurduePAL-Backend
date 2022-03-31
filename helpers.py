@@ -80,7 +80,7 @@ def send_email(subject: str, text: str, to_email: str) -> bool:
             server.login(sender_email, password)
             net_text = f"""\
             Subject: {subject}
-            
+   
             {text}"""
             server.sendmail(sender_email, to_email, net_text)
             return True

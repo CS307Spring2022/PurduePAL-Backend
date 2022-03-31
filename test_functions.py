@@ -92,6 +92,7 @@ class ProfileTest(unittest.TestCase):
 
 class UserActions(unittest.TestCase):
     user1id = "anonymous@purdue.edu"
+
     def test_follow_user(self):
         user1id = self.user1id
         user2id = "rajeshr@purdue.edu"
@@ -135,6 +136,7 @@ class UserActions(unittest.TestCase):
         ret, _ = user_unfollow_topic(data)
         self.assertFalse(ret)
         self.assertFalse(self.topic_id in helpers.db["users"].find_one(self.user1id)["topicsFollowing"])
+
 
 if __name__ == '__main__':
     unittest.main()
