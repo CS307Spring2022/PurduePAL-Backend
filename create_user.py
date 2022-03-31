@@ -14,6 +14,7 @@ def getUserInfo(data: dict) -> dict:
         return {}
     user = safeget(data, "profileUser")
     info = db["users"].find_one({"username": user})
+    print(user)
     for i in range(len(info["userline"])):
         info["userline"][i] = loads(json_util.dumps(info["userline"][i]["post"]))
     for i,user in enumerate(info["usersFollowing"]):

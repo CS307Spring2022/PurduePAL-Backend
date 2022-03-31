@@ -95,8 +95,9 @@ def reactPost(data: dict) -> bool:
         ret = db["users"].update_one({"_id": safeget(data, "email")}, {"$pull": {"dislikedPosts": postID}}).acknowledged
     elif iv == 5:
         ret = True
-    if not db["posts"].update_one({"_id": data["postID"]}, interaction).acknowledged or not ret:
-        return False
+    if iv != 5:
+        if not db["posts"].update_one({"_id": data["postID"]}, interaction).acknowledged or not ret:
+            return False
     return True
 
 # def create_comment()
