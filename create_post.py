@@ -72,4 +72,23 @@ def create_post(data: dict) -> bool:
         return False
     return True
 
+
+def reactPost(data: dict) -> bool:
+    # 1: upvote, 2: downvote, 3: undo up, 4: undo down, 5: nothing happened
+    if not safeget(data, "email") or not safeget(data, "postID"):
+        return False
+    interaction = {}
+    iv = data["interaction"]
+    if iv == 1:
+        interaction = {"$inc": {"likeCount": 1}}
+    elif iv == 2:
+        interaction = {"$inc": {"dislikeCount": 1}}
+    elif iv == 3:
+        interaction = {"$inc": {"likeCount": -1}}
+    elif iv == 4:
+        interaction = {"$inc": {"dislikeCount": -1}}
+    if not db["posts"].update_one({"_id": data["postID"]}, interaction).acknowledged:
+        return False
+    return True
+
 # def create_comment()
