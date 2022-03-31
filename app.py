@@ -1,8 +1,10 @@
+import json
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 from create_post import create_post
-from create_user import sign_up, add_bio_to_user, getUserInfo
+from create_user import sign_up, add_bio_to_user, getUserInfo, save_profile_image
 from delete_user_information import delete_post_from_db, delete_user_with_conf_code, delete_user_without_conf_code
 from follow import user_follow_topic, user_unfollow_topic, user1_follow_user2, user1_unfollow_user2
 from helpers import safeget
@@ -80,13 +82,11 @@ def getTimeline():
 def getUser():
     data = request.json
     user_data = getUserInfo(data)
-    if safeget(user_data, "profilePic"):
-        user_data.pop("profilePic")
-    print(user_data)
-    user_data.pop("password")
-    user_data["match"] = data["loggedUser"] == data["profileUser"]
-    if not user_data["public"] and not user_data["match"]:
-        return jsonify({"msg": "Profile is Private!"}), 200
+    if len(user_data.keys()) != 0:
+        user_data.pop("password")
+        user_data["match"] = data["loggedUser"] == data["profileUser"]
+        if not user_data["public"] and not user_data["match"]:
+            return jsonify({"msg": "Profile is Private!"}), 200
     return jsonify(user_data), 200
 
 
@@ -132,6 +132,14 @@ def delete_user():
     else:
         status = delete_user_without_conf_code(data)
     return jsonify({"no": status})
+
+
+@app.route('/addProfileImage', methods=["POST"])
+def addProfileImage():
+    file = request.files['profileImage']
+    email = request.form.get('email')
+    ret = save_profile_image(file, email)
+    return jsonify({"ret": ret})
 
 
 if __name__ == '__main__':
