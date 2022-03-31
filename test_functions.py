@@ -102,7 +102,7 @@ class UserActions(unittest.TestCase):
         self.assertFalse(ret)
         ret = user1_follow_user2(user1id, user2id)
         self.assertFalse(ret)
-        self.assertTrue(user2id in helpers.db["users"].find_one(user1id)["following"])
+        self.assertTrue(user2id in helpers.db["users"].find_one(user1id)["usersFollowing"])
 
     def test_unfollow_user(self):
         user1id = self.user1id
@@ -111,7 +111,7 @@ class UserActions(unittest.TestCase):
         self.assertTrue(ret)
         ret = user1_unfollow_user2(user1id, user2id)
         self.assertFalse(ret)
-        self.assertFalse(user2id in helpers.db["users"].find_one(user1id)["following"])
+        self.assertFalse(user2id in helpers.db["users"].find_one(user1id)["usersFollowing"])
 
     topic_id = "topic6"
 

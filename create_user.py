@@ -13,14 +13,26 @@ def getUserInfo(data: dict) -> dict:
     if not check_for_data(data, "profileUser"):
         return {}
     user = safeget(data, "profileUser")
-    # print(user)
     info = db["users"].find_one({"username": user})
-    # print(info)
+    for i in range(len(info["userline"])):
+        info["userline"][i] = loads(json_util.dumps(info["userline"][i]["post"]))
+    for i,user in enumerate(info["usersFollowing"]):
+        user_info = db["users"].find_one({"_id":user})
+        info["usersFollowing"][i] = {"name": user_info["firstName"]+" "+user_info["lastName"]}
+    
+    info["loggedFollows"] = False
+    for i,user in enumerate(info["followingUsers"]):
+        user_info = db["users"].find_one({"_id":user})
+        if (user_info["_id"]==safeget(data,"loggedEmail")):
+            info["loggedFollows"] = True
+        info["followingUsers"][i] = {"name": user_info["firstName"]+" "+user_info["lastName"]}
+    
     # print(info["profilePic"])
     info["profilePic"] = str(info["profilePic"])
     # print(str(info["profilePic"]))
     info["profilePic"] = info["profilePic"][2:(len(info["profilePic"]) - 1)] + "=="
     info["profilePic"] = "data:image/png;base64," + info["profilePic"]
+
     return info
 
 

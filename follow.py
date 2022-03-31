@@ -23,6 +23,17 @@ def user_follow_topic(data):
 
     return True, "Success!"
 
+def get_followers(data):
+    userId = safeget(data,"email")
+
+    user_info = db["users"].find_one({"_id": userId})
+    
+    for i,user in enumerate(user_info["followingUsers"]):
+        following_user_info = db["users"].find_one({"_id":user})
+        user_info["followingUsers"][i] = {"name": following_user_info["firstName"]+" "+following_user_info["lastName"]}
+    
+    return True,{"msg":"Success!","newFollowing":user_info["followingUsers"]}
+
 
 def user_unfollow_topic(data):
     email = safeget(data, "email", default="anonymous@purdue.edu")
@@ -63,15 +74,15 @@ def user1_follow_user2(user1id: str, user2id: str) -> bool:
     if not isPublic:
         return False
 
-    if user2id in user1["following"]:
+    if user2id in user1["usersFollowing"]:
         return False
     # update user 1 following
-    new_values = {"$push": {"following": user2id}}
+    new_values = {"$push": {"usersFollowing": user2id}}
     ret = db["users"].update_one(user1, new_values)
     if ret.modified_count != 1:
         return False
     # update user2 followers
-    new_values = {"$push": {"followers": user1id}}
+    new_values = {"$push": {"followingUsers": user1id}}
     if db["users"].update_one(user2, new_values).modified_count != 1:
         return False
     return True
@@ -83,12 +94,12 @@ def user1_unfollow_user2(user1id: str, user2id: str) -> bool:
     if not user1 or not user2:
         return False
     # update user 1 following
-    new_values = {"$pull": {"following": user2id}}
+    new_values = {"$pull": {"usersFollowing": user2id}}
     if db["users"].update_one(user1, new_values).modified_count != 1:
         return False
 
     # update user2 followers
-    new_values = {"$pull": {"followers": user1id}}
+    new_values = {"$pull": {"followingUsers": user1id}}
     if db["users"].update_one(user2, new_values).modified_count != 1:
         return False
     return True
