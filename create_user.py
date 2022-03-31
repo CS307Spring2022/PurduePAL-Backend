@@ -13,8 +13,18 @@ def getUserInfo(data: dict) -> dict:
         return {}
     user = safeget(data, "profileUser")
     info = db["users"].find_one({"username": user})
-    for i in range(len(info["userline"])):
-        info["userline"][i] = loads(json_util.dumps(info["userline"][i]["post"]))
+    for i in range(len(info["originalPosts"])):
+        info["originalPosts"][i] = loads(json_util.dumps(info["originalPosts"][i]["post"]))
+    for i in range(len(info["responsePosts"])):
+        info["responsePosts"][i] = loads(json_util.dumps(info["responsePosts"][i]["post"]))
+    for i in range(len(info["likedPosts"])):
+        print(info["likedPosts"][i])
+        info["likedPosts"][i] = loads(json_util.dumps(info["likedPosts"][i]["post"]))
+    for i in range(len(info["dislikedPosts"])):
+        info["dislikedPosts"][i] = loads(json_util.dumps(info["dislikedPosts"][i]["post"]))
+    for i in range(len(info["savedPosts"])):
+        info["savedPosts"][i] = loads(json_util.dumps(info["savedPosts"][i]["post"]))
+    
     for i, user in enumerate(info["usersFollowing"]):
         user_info = db["users"].find_one({"_id": user})
         info["usersFollowing"][i] = {"name": user_info["firstName"] + " " + user_info["lastName"]}
@@ -54,9 +64,7 @@ def sign_up(data: dict, testing=False) -> Tuple[int, str]:
                                              "username": username, "password": encrypt_password(password),
                                              "public": True, "bio": "", "profilePic": "",
                                              "topicsFollowing": [], "usersFollowing": [], "followingUsers": [],
-                                             "userline": [],
-                                             "originalPostCount": 0, "responsePostCount": 0, "likeCount": 0,
-                                             "dislikeCount": 0, "savedPostsCount": 0})
+                                             "originalPosts": [], "responsePosts": [], "likedPosts": [], "dislikedPosts": [], "savedPosts": []})
         if not return_val.acknowledged:
             return 500, "mongodb error"
     return 200, "success"

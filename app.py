@@ -6,7 +6,7 @@ from create_user import sign_up, add_bio_to_user, getUserInfo, save_profile_imag
 from delete_user_information import delete_post_from_db, delete_user_with_conf_code, delete_user_without_conf_code
 from follow import user_follow_topic, user_unfollow_topic, user1_follow_user2, user1_unfollow_user2, get_followers
 from helpers import safeget
-from timeline import get_timeline, saved_posts
+from timeline import get_post_thread, get_timeline, saved_posts
 from topics_stuff import get_topics
 from userLogin import login
 
@@ -69,16 +69,25 @@ def getTopics():
 
 @app.route('/createPost', methods=['POST'])
 def createPost():
+    # file = request.files['profileImage']
+    # data = request.form.get('data')
     data = request.json
-    success = create_post(data)
+    success,msg = create_post(data)
     return_code = 200 if success else 400
-    return return_code
+    return jsonify({msg: msg}),return_code
 
 
 @app.route('/timeline', methods=['GET', 'POST'])
 def getTimeline():
     data = request.json
     posts, success = get_timeline(data)
+    status_code = 200 if success else 400
+    return jsonify(posts), status_code
+
+@app.route('/postThread', methods=['GET', 'POST'])
+def getPostThread():
+    data = request.json
+    posts, success = get_post_thread(data)
     status_code = 200 if success else 400
     return jsonify(posts), status_code
 
