@@ -49,6 +49,10 @@ def user_unfollow_topic(data):
 
 
 def user1_follow_user2(user1id: str, user2id: str) -> bool:
+    if user1id is None or user2id is None:
+        return False
+    if user1id == user2id:
+        return False
     user1 = db["users"].find_one({"_id": user1id})
     user2 = db["users"].find_one({"_id": user2id})
     if not user1 or not user2:

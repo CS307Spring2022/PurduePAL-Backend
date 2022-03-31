@@ -4,7 +4,7 @@ from flask_cors import CORS
 from create_post import create_post
 from create_user import sign_up, add_bio_to_user, getUserInfo
 from delete_user_information import delete_post_from_db, delete_user_with_conf_code, delete_user_without_conf_code
-from follow import user_follow_topic, user_unfollow_topic
+from follow import user_follow_topic, user_unfollow_topic, user1_follow_user2, user1_unfollow_user2
 from helpers import safeget
 from timeline import get_timeline
 from topics_stuff import get_topics
@@ -33,6 +33,24 @@ def unfollowTopic():
     success, msg = user_unfollow_topic(data)
     return_code = 200 if success else 400
     return jsonify({"message": msg}), return_code
+
+
+@app.route('/followUser', methods=['POST'])
+def follow_user():
+    data = request.json
+    user1 = safeget(data, "follower")
+    user2 = safeget(data, "following")
+    status = user1_follow_user2(user1, user2)
+    return jsonify({"message": status})
+
+
+@app.route('/unfollowUser', methods=['POST'])
+def unfollow_user():
+    data = request.json
+    user1 = safeget(data, "follower")
+    user2 = safeget(data, "following")
+    status = user1_unfollow_user2(user1, user2)
+    return jsonify({"message": status})
 
 
 @app.route('/topics', methods=['GET'])
