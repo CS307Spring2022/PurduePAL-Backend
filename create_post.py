@@ -1,7 +1,7 @@
 import datetime
 
 from helpers import safeget, db
-
+from bson import ObjectId
 
 def update_parent_post(id_dict: dict, comment_id):
     db["posts"].update_one({"_id": id_dict}, {"$push": {"comments": comment_id}})
@@ -78,7 +78,7 @@ def reactPost(data: dict) -> bool:
     if not safeget(data, "email") or not safeget(data, "postID"):
         return False
     interaction = {}
-    postID = safeget(data, "postID")
+    postID = ObjectId(safeget(data, "postID"))
     iv = data["interaction"]
     ret = False
     if iv == 1:
