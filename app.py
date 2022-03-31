@@ -88,9 +88,12 @@ def getTimeline():
 def getUser():
     data = request.json
     user_data = getUserInfo(data)
-    user_data.pop("likedPosts")
-    user_data.pop("dislikedPosts")
-    user_data.pop("password")
+    if safeget(user_data, "likedPosts"):
+        user_data.pop("likedPosts")
+    if safeget(user_data, "dislikedPosts"):
+        user_data.pop("dislikedPosts")
+    if safeget(user_data, "password"):
+        user_data.pop("password")
     user_data["match"] = data["loggedUser"] == data["profileUser"]
     if (not user_data["public"]):
         return jsonify({"msg": "Profile is Private!"}),200

@@ -20,9 +20,8 @@ def getUserInfo(data: dict) -> dict:
     for i,user in enumerate(info["usersFollowing"]):
         user_info = db["users"].find_one({"_id":user})
         info["usersFollowing"][i] = {"name": user_info["firstName"]+" "+user_info["lastName"]}
-    
     info["loggedFollows"] = False
-    for i,user in enumerate(info["followingUsers"]):
+    for i, user in enumerate(info["followingUsers"]):
         user_info = db["users"].find_one({"_id":user})
         if (user_info["_id"]==safeget(data,"loggedEmail")):
             info["loggedFollows"] = True
