@@ -171,6 +171,7 @@ def savePost():
 def savedPosts():
     data = request.json
     posts, status_code = saved_posts(data)
+    status_code = 200 if status_code else 400
     return jsonify(posts), status_code
 
 if __name__ == '__main__':
