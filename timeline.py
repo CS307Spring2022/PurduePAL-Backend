@@ -1,12 +1,12 @@
 from json import loads
-from typing import Tuple
+from typing import Tuple, List
 
 from bson import json_util
 
 from helpers import safeget, db
 
 
-def get_timeline(data: dict) -> Tuple[list[dict], bool]:
+def get_timeline(data: dict) -> Tuple[List[dict], bool]:
     user_id = safeget(data, "email", default="anonymous@purdue.edu")
     user = [u for u in db["users"].find({"_id": user_id})]
     if (len(user) == 0):

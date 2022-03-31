@@ -1,8 +1,10 @@
+import base64
 from json import loads
 from typing import Tuple
 
 from bson import json_util
 
+from bson.binary import Binary
 from helpers import safeget, db, check_for_data, encrypt_password
 from userVerification import checkEmail, checkUsername, checkPasswordLength
 
@@ -11,9 +13,14 @@ def getUserInfo(data: dict) -> dict:
     if not check_for_data(data, "profileUser"):
         return {}
     user = safeget(data, "profileUser")
+    # print(user)
     info = db["users"].find_one({"username": user})
-    for i in range(len(info["userline"])):
-        info["userline"][i] = loads(json_util.dumps(info["userline"][i]["post"]))
+    # print(info)
+    # print(info["profilePic"])
+    info["profilePic"] = str(info["profilePic"])
+    # print(str(info["profilePic"]))
+    info["profilePic"] = info["profilePic"][2:(len(info["profilePic"]) - 1)] + "=="
+    info["profilePic"] = "data:image/png;base64," + info["profilePic"]
     return info
 
 
@@ -64,4 +71,16 @@ def add_bio_to_user(data: dict, update_db: bool = True) -> bool:
             "$set": {"bio": bio, "firstName": first_name, "lastName": last_name}})  # update user with email
         if stat.matched_count == 0:
             return False
+    return True
+
+
+def save_profile_image(file, email) -> bool:
+    encoded = base64.b64encode(file.read())
+    print(encoded)
+    # encoded = Binary(file.read())
+    ret = db["users"].update_one({"_id": email}, {"$set": {"profilePic": encoded}})
+    print('here', ret.acknowledged)
+    # print(encoded[0])
+    if not ret.acknowledged:
+        return False
     return True
