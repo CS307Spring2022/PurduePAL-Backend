@@ -8,7 +8,7 @@ from create_user import sign_up, add_bio_to_user, getUserInfo, save_profile_imag
 from delete_user_information import delete_post_from_db, delete_user_with_conf_code, delete_user_without_conf_code
 from follow import user_follow_topic, user_unfollow_topic, user1_follow_user2, user1_unfollow_user2, get_followers
 from helpers import safeget
-from timeline import get_timeline
+from timeline import get_timeline, saved_posts
 from topics_stuff import get_topics
 from userLogin import login
 
@@ -54,6 +54,7 @@ def unfollow_user():
     status = user1_unfollow_user2(user1, user2)
     return jsonify({"message": status})
 
+
 @app.route('/getFollowers',methods=["POST"])
 def getFollowers():
     data = request.json
@@ -80,7 +81,6 @@ def createPost():
 def getTimeline():
     data = request.json
     posts, success = get_timeline(data)
-    # print(posts)
     status_code = 200 if success else 400
     return jsonify(posts), status_code
 
@@ -165,6 +165,13 @@ def savePost():
     data = request.json
     ret = save_post(data)
     return jsonify({"ret": ret}), 200 if ret else 400
+
+
+@app.route('/savedPosts', methods=["POST"])
+def savedPosts():
+    data = request.json
+    posts, status_code = saved_posts(data)
+    return jsonify(posts), status_code
 
 if __name__ == '__main__':
     app.run(use_reloader=True, debug=False)

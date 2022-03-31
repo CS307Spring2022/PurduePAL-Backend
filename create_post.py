@@ -115,3 +115,4 @@ def save_post(data):
     if db["users"].update_one({"_id": safeget(data, "email")}, {"$push": {"savedPosts": ObjectId(safeget(data, "postID"))}}).modified_count != 1:
         return False
     return True
+
