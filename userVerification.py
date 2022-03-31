@@ -26,7 +26,7 @@ def unique_user(data: dict, username: str):
 
 
 def checkEmail(email):
-    if not re.search("^\S+@purdue.edu$", email):
+    if not re.search(r"^\S+@purdue.edu$", email):
         return Errors.EMAIL_ERROR
 
 
