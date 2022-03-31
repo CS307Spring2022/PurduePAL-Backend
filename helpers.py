@@ -1,12 +1,13 @@
 import os
-import ssl, smtplib
+import smtplib
+import ssl
 from random import randint
 
 import certifi
-
 import pymongo
 from passlib.context import CryptContext
-db = pymongo.MongoClient(os.getenv("CONN"),tlsCAFile=certifi.where())["PurduePAL"]
+
+db = pymongo.MongoClient(os.getenv("CONN"), tlsCAFile=certifi.where())["PurduePAL"]
 smtp_server = os.getenv("SMTP_SERVER")
 port = os.getenv("PORT")
 sender_email = os.getenv("SENDER_EMAIL")
@@ -14,9 +15,9 @@ password = os.getenv("PASSWORD")
 context = ssl.create_default_context()  # to send email
 
 pwd_context = CryptContext(
-        schemes=["pbkdf2_sha256"],
-        default="pbkdf2_sha256",
-        pbkdf2_sha256__default_rounds=30000
+    schemes=["pbkdf2_sha256"],
+    default="pbkdf2_sha256",
+    pbkdf2_sha256__default_rounds=30000
 )
 
 
@@ -65,8 +66,8 @@ def check_password(entered_password: str, hashed: str) -> bool:
 
 
 def generate_confirmation_code() -> int:
-    range_start = 10**(5-1)
-    range_end = (10**5)-1
+    range_start = 10 ** (5 - 1)
+    range_end = (10 ** 5) - 1
     return randint(range_start, range_end)
 
 
@@ -93,7 +94,7 @@ def verifyConfirmation(to_email: str):
     subject = "Purdue PAL: Verify Confirmation for Account Creation"
     content = "Please click the following link to verify your account: " + conf_code
 
-    send_email(subject,content, to_email)
+    send_email(subject, content, to_email)
 
-    #check that user is not already active
-    #check if link has been clicked
+    # check that user is not already active
+    # check if link has been clicked

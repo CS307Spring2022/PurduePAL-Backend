@@ -1,11 +1,10 @@
-import os
 import unittest
 
 import helpers
 from create_user import add_bio_to_user, sign_up
 from helpers import encrypt_password, check_password
 from userLogin import login
-from userVerification import checkUsername, unique_user
+from userVerification import unique_user
 
 
 class SignUpTests(unittest.TestCase):
@@ -13,7 +12,7 @@ class SignUpTests(unittest.TestCase):
         encrypted = encrypt_password("password")
         self.assertNotEqual(encrypted, "password")  # did it encrypt?
         decrypted = check_password("password", encrypted)
-        self.assertTrue(decrypted)   # can it decrypt normally?
+        self.assertTrue(decrypted)  # can it decrypt normally?
         decrypted = check_password("passw0rd", encrypted)
         self.assertFalse(decrypted)  # what if user input is wrong?
         encrypted = encrypted[:-1] + '!'
@@ -56,6 +55,7 @@ class SignUpTests(unittest.TestCase):
         self.assertTrue(yay)
         self.assertEqual("anonymous@purdue.edu", email)
         self.assertEqual("anonymous", username)
+
 
 class ProfileTest(unittest.TestCase):
     def test_add_bio(self):

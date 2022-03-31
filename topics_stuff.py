@@ -1,7 +1,8 @@
 import json
-from collections import defaultdict
-from helpers import db
+
 from bson import json_util
+
+from helpers import db
 
 
 def get_topics() -> list:
@@ -12,6 +13,6 @@ def get_topics() -> list:
         for i in range(len(topic["posts"])):
             topic["posts"][i] = json.loads(json_util.dumps(topic["posts"][i]))
         topics_dict.append(topic)
-    
-    topics_dict = sorted(topics_dict,key=lambda x: len(x["posts"])+len(x["usersFollowing"]),reverse=True)
+
+    topics_dict = sorted(topics_dict, key=lambda x: len(x["posts"]) + len(x["usersFollowing"]), reverse=True)
     return topics_dict

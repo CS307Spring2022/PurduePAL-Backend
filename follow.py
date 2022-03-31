@@ -1,52 +1,49 @@
-import email
-from email.message import EmailMessage
-import pymongo
-from helpers import safeget, db, check_for_data
+from helpers import safeget, db
 
 
 def user_follow_topic(data):
-    email = safeget(data,"email",default="anonymous@purdue.edu")
-    topic = safeget(data,"topic")
+    email = safeget(data, "email", default="anonymous@purdue.edu")
+    topic = safeget(data, "topic")
 
     user = db["users"].find_one({"_id": email})
 
     if (topic in user["topicsFollowing"]):
-        return False,"User already following topic!"
-    
+        return False, "User already following topic!"
+
     new_values = {"$push": {"topicsFollowing": topic}}
     # print(topic in user["topicsFollowing"])
     ret = db["users"].update_one({"_id": email}, new_values)
     # print(ret.acknowledged)
     if (not ret.acknowledged):
-        return False,"User Database Error!"
-    
-    ret = db["topics"].update_one({"_id":topic}, {"$push": {"usersFollowing": email}})
-    if (not ret.acknowledged):
-        return False,"Topic Database Error!"
+        return False, "User Database Error!"
 
-    return True,"Success!"
+    ret = db["topics"].update_one({"_id": topic}, {"$push": {"usersFollowing": email}})
+    if (not ret.acknowledged):
+        return False, "Topic Database Error!"
+
+    return True, "Success!"
 
 
 def user_unfollow_topic(data):
-    email = safeget(data,"email",default="anonymous@purdue.edu")
-    topic = safeget(data,"topic")
+    email = safeget(data, "email", default="anonymous@purdue.edu")
+    topic = safeget(data, "topic")
     user = db["users"].find_one({"_id": email})
 
     if (topic not in user["topicsFollowing"]):
-        return False,"User already unfollowed topic!"
-    
+        return False, "User already unfollowed topic!"
+
     new_values = {"$pull": {"topicsFollowing": topic}}
     # print(topic in user["topicsFollowing"])
     ret = db["users"].update_one({"_id": email}, new_values)
     # print(ret.acknowledged)
     if (not ret.acknowledged):
-        return False,"User Database Error!"
-    
-    ret = db["topics"].update_one({"_id":topic}, {"$pull": {"usersFollowing": email}})
-    if (not ret.acknowledged):
-        return False,"Topic Database Error!"
+        return False, "User Database Error!"
 
-    return True,"Success!"
+    ret = db["topics"].update_one({"_id": topic}, {"$pull": {"usersFollowing": email}})
+    if (not ret.acknowledged):
+        return False, "Topic Database Error!"
+
+    return True, "Success!"
 
 
 def user1_follow_user2(user1id: str, user2id: str) -> bool:

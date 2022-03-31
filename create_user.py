@@ -1,8 +1,10 @@
+from json import loads
 from typing import Tuple
+
+from bson import json_util
+
 from helpers import safeget, db, check_for_data, encrypt_password
 from userVerification import checkEmail, checkUsername, checkPasswordLength
-from bson import json_util
-from json import loads
 
 
 def getUserInfo(data: dict) -> dict:
@@ -38,8 +40,10 @@ def sign_up(data: dict, testing=False) -> Tuple[int, str]:
         return_val = db["users"].insert_one({"_id": email, "firstName": first_name, "lastName": last_name,
                                              "username": username, "password": encrypt_password(password),
                                              "public": True, "bio": "", "profilePic": "",
-                                             "topicsFollowing": [], "usersFollowing": [], "followingUsers": [], "userline": [],
-                                             "originalPostCount": 0, "responsePostCount": 0, "likeCount": 0, "dislikeCount": 0, "savedPostsCount": 0})
+                                             "topicsFollowing": [], "usersFollowing": [], "followingUsers": [],
+                                             "userline": [],
+                                             "originalPostCount": 0, "responsePostCount": 0, "likeCount": 0,
+                                             "dislikeCount": 0, "savedPostsCount": 0})
         if not return_val.acknowledged:
             return 500, "mongodb error"
     return 200, "success"

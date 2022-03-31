@@ -1,6 +1,7 @@
 import re
-from helpers import db
+
 from error import Errors
+from helpers import db
 
 
 def checkUsername(username):
