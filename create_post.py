@@ -86,7 +86,8 @@ def reactPost(data: dict) -> bool:
         ret = db["users"].update_one({"_id": safeget(data, "email")}, {"$push": {"likedPosts": postID}}).acknowledged
     elif iv == 2:
         interaction = {"$inc": {"dislikeCount": 1}}
-        ret = db["users"].update_one({"_id": safeget(data, "email")}, {"$push": {"dislikedPosts": postID}}).acknowledged
+        ret = db["users"].update_one({"_id": safeget(data, "email")}, {"$push": {"dislikedPosts": postID}})
+        ret = ret.acknowledged
     elif iv == 3:
         interaction = {"$inc": {"likeCount": -1}}
         ret = db["users"].update_one({"_id": safeget(data, "email")}, {"$pull": {"likedPosts": postID}}).acknowledged
@@ -96,7 +97,7 @@ def reactPost(data: dict) -> bool:
     elif iv == 5:
         ret = True
     if iv != 5:
-        if not db["posts"].update_one({"_id": data["postID"]}, interaction).acknowledged or not ret:
+        if db["posts"].update_one({"_id": postID}, interaction).modified_count != 1 or not ret:
             return False
     return True
 
