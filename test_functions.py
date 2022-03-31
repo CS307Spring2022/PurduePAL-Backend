@@ -1,7 +1,10 @@
+import os
 import unittest
 
+import helpers
 from create_user import add_bio_to_user
 from helpers import encrypt_password, check_password
+from userVerification import checkUsername, unique_user
 
 
 class SignUpTests(unittest.TestCase):
@@ -15,6 +18,15 @@ class SignUpTests(unittest.TestCase):
         encrypted = encrypted[:-1] + '!'
         decrypted = check_password("password", encrypted)
         self.assertFalse(decrypted)  # what if encrypted is wrong?
+
+    def test_username(self):
+        in_use = unique_user("anonymous")  # username for anonymous, even with incomplete profile
+        self.assertNotEqual(in_use, True)
+        in_use = unique_user("justinhart")  # complete profile. does it work?
+        self.assertNotEqual(in_use, True)
+        newUsername = helpers.generate_confirmation_code()
+        in_use = unique_user(str(newUsername))  # absolutely new username (99% unique)
+        self.assertEqual(in_use, True)
 
 
 class ProfileTest(unittest.TestCase):

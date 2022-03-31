@@ -64,18 +64,17 @@ def getUser():
     print(user_data)
     user_data.pop("password")
     user_data["match"] = data["loggedUser"] == data["profileUser"]
-    if (not user_data["public"]):
-        return jsonify({"msg": "Profile is Private!"}),200
-    return jsonify(user_data),200
+    if not user_data["public"] and not user_data["match"]:
+        return jsonify({"msg": "Profile is Private!"}), 200
+    return jsonify(user_data), 200
 
 
 @app.route('/sign_up', methods=['POST'])
 def sign_up_process():
     data = request.json
     # created = sign_up(data)
-    status_code,msg = sign_up(data)
-
-    return jsonify({"return_code": status_code==200,"msg": msg}), status_code
+    status_code, msg = sign_up(data)
+    return jsonify({"return_code": status_code == 200, "msg": msg}), status_code
 
 
 @app.route('/login', methods=['POST'])
