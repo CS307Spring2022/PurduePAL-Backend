@@ -3,6 +3,7 @@ import datetime
 from helpers import safeget, db
 from bson import ObjectId
 
+
 def update_parent_post(id_dict: dict, comment_id):
     db["posts"].update_one({"_id": id_dict}, {"$push": {"comments": comment_id}})
     db["posts"].update_one({"_id": id_dict}, {"$inc": {"commentCount": 1}})
@@ -105,5 +106,12 @@ def reactPost(data: dict) -> bool:
             return False
     return True
 
-# def save_post(data):
-#
+
+def save_post(data):
+    if not safeget(data, "postID") or not safeget(data, "email"):
+        return False
+    if db["users"].update_one({"_id": safeget(data, "email")}, {"$pull": {"savedPosts": ObjectId(safeget(data, "postID"))}}).modified_count == 1:
+        return True
+    if db["users"].update_one({"_id": safeget(data, "email")}, {"$push": {"savedPosts": ObjectId(safeget(data, "postID"))}}).modified_count != 1:
+        return False
+    return True

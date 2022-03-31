@@ -59,7 +59,8 @@ def getFollowers():
     data = request.json
     success,data = get_followers(data)
     return_code = 200 if success else 400
-    return jsonify(data),return_code
+    return jsonify(data), return_code
+
 
 @app.route('/topics', methods=['GET'])
 def getTopics():
