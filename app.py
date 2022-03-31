@@ -1,8 +1,11 @@
 from flask import Flask, request, jsonify
+from create_post import create_post
 from create_user import sign_up, add_bio_to_user, getUserInfo
 from delete_user_information import delete_post_from_db, delete_user_with_conf_code, delete_user_without_conf_code
+from follow import user_follow_topic, user_unfollow_topic
 from helpers import safeget
 from flask_cors import CORS
+from timeline import get_timeline
 
 from topics_stuff import get_topics
 from userLogin import login
@@ -16,19 +19,54 @@ def hello_world():
     return 'Hello World!'
 
 
+@app.route('/followTopic', methods=['GET','POST'])
+def followTopic():
+    data = request.json
+    success,msg = user_follow_topic(data)
+    return_code = 200 if success else 400
+    return jsonify({"message":msg}),return_code
+
+@app.route('/unfollowTopic', methods=['GET','POST'])
+def unfollowTopic():
+    data = request.json
+    success,msg = user_unfollow_topic(data)
+    return_code = 200 if success else 400
+    return jsonify({"message":msg}),return_code
+
+
 @app.route('/topics', methods=['GET'])
 def getTopics():
     topics = get_topics()
     return jsonify(topics)
 
+@app.route('/createPost', methods=['POST'])
+def createPost():
+    data = request.json
+    success = create_post(data)
+    return_code = 200 if success else 400
+    return return_code
 
-@app.route('/getUser', methods=['GET'])
+@app.route('/timeline', methods=['GET','POST'])
+def getTimeline():
+    data = request.json
+    posts,success = get_timeline(data)
+    # print(posts)
+    status_code = 200 if success else 400
+    return jsonify(posts),status_code
+    
+
+@app.route('/getUser', methods=['GET','POST'])
 def getUser():
-    data = request.args.to_dict()
+    data = request.json
     user_data = getUserInfo(data)
     if safeget(user_data, "profilePic"):
         user_data.pop("profilePic")
-    return jsonify(user_data)
+    print(user_data)
+    user_data.pop("password")
+    user_data["match"] = data["loggedUser"] == data["profileUser"]
+    if (not user_data["public"]):
+        return jsonify({"msg": "Profile is Private!"}),200
+    return jsonify(user_data),200
 
 
 @app.route('/sign_up', methods=['POST'])
@@ -48,7 +86,7 @@ def login_process():
     return jsonify({"return_code": loggedIn, "email": email, "username": username}), status_code
 
 
-@app.route('/update', methods=['POST'])
+@app.route('/updateUserInfo', methods=['POST'])
 def add_bio():
     data = request.json
     # should contain email and bio
