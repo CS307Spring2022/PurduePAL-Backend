@@ -1,13 +1,16 @@
 from typing import Tuple
 from helpers import safeget, db, check_for_data, encrypt_password
 from userVerification import checkEmail, checkUsername, checkPasswordLength
-
+from bson import json_util
+from json import loads
 
 def getUserInfo(data: dict) -> dict:
-    if not check_for_data(data, "email"):
+    if not check_for_data(data, "profileUser"):
         return {}
-    email = safeget(data, "email")
-    info = db["users"].find_one({"_id": email})
+    user = safeget(data, "profileUser")
+    info = db["users"].find_one({"username": user})
+    for i in range(len(info["userline"])):
+        info["userline"][i] = loads(json_util.dumps(info["userline"][i]["post"]))
     return info
 
 def sign_up(data: dict) -> Tuple[int,str]:
@@ -30,7 +33,10 @@ def sign_up(data: dict) -> Tuple[int,str]:
     if db["users"].find_one({"username": username}):
         return (400,"Username Taken! Please Choose Another.")
     return_val = db["users"].insert_one({"_id": email, "firstName": first_name, "lastName": last_name,
-                                         "username": username, "password": encrypt_password(password)})
+                                         "username": username, "password": encrypt_password(password),
+                                         "public": True, "bio": "", "profilePic": "",
+                                         "topicsFollowing": [], "usersFollowing": [], "followingUsers": [], "userline": [],
+                                         "originalPostCount": 0, "responsePostCount": 0, "likeCount": 0, "dislikeCount": 0, "savedPostsCount": 0})
     if not return_val.acknowledged:
         print("huh")
         return (500, "mongodb error")
