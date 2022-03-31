@@ -2,6 +2,7 @@ import unittest
 
 import helpers
 from create_user import add_bio_to_user, sign_up
+from follow import user1_follow_user2, user1_unfollow_user2, user_follow_topic, user_unfollow_topic
 from helpers import encrypt_password, check_password
 from userLogin import login
 from userVerification import unique_user
@@ -74,6 +75,66 @@ class ProfileTest(unittest.TestCase):
         added = add_bio_to_user(user_data.pop("bio"), update_db=False)
         self.assertFalse(added)
 
+    def test_change_name(self):
+        user_data = {
+            "email": "anonymous@purdue.edu",
+            "bio": "hehe",
+            "firstName": "Anonymous",
+            "lastName": "Anonymous"
+        }
+        edited = add_bio_to_user(user_data)
+        self.assertTrue(edited)
+        user = helpers.db["users"].find_one({"_id": "anonymous@purdue.edu"})
+        self.assertEqual(user["bio"], "hehe")
+        self.assertEqual(user["firstName"], 'Anonymous')
+        self.assertEqual(user["lastName"], 'Anonymous')
+
+
+class UserActions(unittest.TestCase):
+    user1id = "anonymous@purdue.edu"
+    def test_follow_user(self):
+        user1id = self.user1id
+        user2id = "rajeshr@purdue.edu"
+        ret = user1_follow_user2(user1id, user2id)
+        self.assertTrue(ret)
+        ret = user1_follow_user2(user1id, user1id[:-1])
+        self.assertFalse(ret)
+        ret = user1_follow_user2(user1id, user2id)
+        self.assertFalse(ret)
+        self.assertTrue(user2id in helpers.db["users"].find_one(user1id)["following"])
+
+    def test_unfollow_user(self):
+        user1id = self.user1id
+        user2id = "rajeshr@purdue.edu"
+        ret = user1_unfollow_user2(user1id, user2id)
+        self.assertTrue(ret)
+        ret = user1_unfollow_user2(user1id, user2id)
+        self.assertFalse(ret)
+        self.assertFalse(user2id in helpers.db["users"].find_one(user1id)["following"])
+
+    topic_id = "topic6"
+
+    def test_follow_topic(self):
+        data = {
+            "email": self.user1id,
+            "topic": self.topic_id
+        }
+        ret, _ = user_follow_topic(data)
+        self.assertTrue(ret)
+        ret, _ = user_follow_topic(data)
+        self.assertFalse(ret)
+        self.assertTrue(self.topic_id in helpers.db["users"].find_one(self.user1id)["topicsFollowing"])
+
+    def test_unfollow_topic(self):
+        data = {
+            "email": self.user1id,
+            "topic": self.topic_id
+        }
+        ret, _ = user_unfollow_topic(data)
+        self.assertTrue(ret)
+        ret, _ = user_unfollow_topic(data)
+        self.assertFalse(ret)
+        self.assertFalse(self.topic_id in helpers.db["users"].find_one(self.user1id)["topicsFollowing"])
 
 if __name__ == '__main__':
     unittest.main()
