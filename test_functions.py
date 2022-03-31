@@ -2,8 +2,9 @@ import os
 import unittest
 
 import helpers
-from create_user import add_bio_to_user
+from create_user import add_bio_to_user, sign_up
 from helpers import encrypt_password, check_password
+from userLogin import login
 from userVerification import checkUsername, unique_user
 
 
@@ -28,6 +29,33 @@ class SignUpTests(unittest.TestCase):
         in_use = unique_user(str(newUsername))  # absolutely new username (99% unique)
         self.assertEqual(in_use, True)
 
+    def test_sign_up(self):
+        user_data = {
+            "firstName": str(helpers.generate_confirmation_code()),  # new
+            "lastName": str(helpers.generate_confirmation_code()),  # new
+            "email": "anonymous@purdue.edu",  # already used
+            "username": str(helpers.generate_confirmation_code()),  # new
+            "password": "hellowhyamihere",  # long enough
+            "confirmPassword": "hellowhyamihere"  # long enough
+        }
+        status, signed_up = sign_up(user_data, testing=True)
+        self.assertNotEqual(status, 200)
+        user_data["email"] = str(helpers.generate_confirmation_code()) + "@purdue.edu"
+        status, signed_up = sign_up(user_data, testing=True)
+        self.assertEqual(status, 200)
+
+    def test_login(self):
+        login_data = {
+            "email": "anonymous@purdue.edu",
+            "password": ""
+        }
+        yay, email, username = login(login_data)
+        self.assertFalse(yay)
+        login_data["password"] = "lol"
+        yay, email, username = login(login_data)
+        self.assertTrue(yay)
+        self.assertEqual("anonymous@purdue.edu", email)
+        self.assertEqual("anonymous", username)
 
 class ProfileTest(unittest.TestCase):
     def test_add_bio(self):
