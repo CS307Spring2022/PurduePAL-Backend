@@ -22,7 +22,7 @@ class SignUpTests(unittest.TestCase):
     def test_username(self):
         in_use = unique_user("anonymous")  # username for anonymous, even with incomplete profile
         self.assertNotEqual(in_use, True)
-        in_use = unique_user("justinhart")  # complete profile. does it work?
+        in_use = unique_user("")  # bad username profile. does it work?
         self.assertNotEqual(in_use, True)
         newUsername = helpers.generate_confirmation_code()
         in_use = unique_user(str(newUsername))  # absolutely new username (99% unique)

@@ -15,6 +15,8 @@ def checkUsername(username):
 
 
 def unique_user(username: str):
+    if username is None or username == "":
+        return Errors.USERNAME_ERROR
     username_exists = db["users"].find_one(filter={"username": username})
     if username_exists:
         # username already exists
