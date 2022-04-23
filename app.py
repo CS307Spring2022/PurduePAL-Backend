@@ -81,6 +81,8 @@ def createPost():
 def getTimeline():
     data = request.json
     posts, success = get_timeline(data)
+    if len(posts) > 0 and safeget(posts[0], "val"):
+        posts[0]["logout"] = True
     status_code = 200 if success else 400
     return jsonify(posts), status_code
 
@@ -96,10 +98,6 @@ def getPostThread():
 def getUser():
     data = request.json
     user_data = getUserInfo(data)
-    if safeget(user_data, "likedPosts"):
-        user_data.pop("likedPosts")
-    if safeget(user_data, "dislikedPosts"):
-        user_data.pop("dislikedPosts")
     if safeget(user_data, "password"):
         user_data.pop("password")
     user_data["match"] = data["loggedUser"] == data["profileUser"]

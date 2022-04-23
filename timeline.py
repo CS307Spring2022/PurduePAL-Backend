@@ -60,6 +60,7 @@ def saved_posts(data) -> Tuple[List[dict], bool]:
     if not safeget(data, "email"):
         return [{"val": "hi"}], False
     saved_ids = db["users"].find_one({"_id": safeget(data, "email")})["savedPosts"]
+    saved_ids = [saved_id["post"] for saved_id in saved_ids]
     posts_cursor = db["posts"].find({"_id": {"$in": saved_ids}})
 
     posts_dict = []
