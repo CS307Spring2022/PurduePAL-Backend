@@ -73,7 +73,7 @@ def getTopics():
     return jsonify(topics)
 
 
-@app.route('/topic_posts', methods=['POST'])
+@app.route('/topic_posts', methods=['GET'])
 def getTopicPosts():
     data = request.args.to_dict()
     posts, success = get_topic_posts(data)
