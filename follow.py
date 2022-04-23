@@ -32,7 +32,9 @@ def get_followers(data):
     for i, user in enumerate(user_info["followingUsers"]):
         following_user_info = db["users"].find_one({"_id": user})
         user_info["followingUsers"][i] = {
-            "name": following_user_info["firstName"] + " " + following_user_info["lastName"]}
+            "name": following_user_info["firstName"] + " " + following_user_info["lastName"],
+            "username": following_user_info["username"]
+        }
 
     return True, {"msg": "Success!", "newFollowing": user_info["followingUsers"]}
 
