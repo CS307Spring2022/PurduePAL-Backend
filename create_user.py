@@ -89,6 +89,18 @@ def add_bio_to_user(data: dict, update_db: bool = True) -> bool:
             return False
     return True
 
+def update_public(data: dict, update_db: bool = True) -> bool:
+    if not check_for_data(data, "email"):
+        return False
+    
+    email = safeget(data, "email")
+    public_val = safeget(data, "public")
+    if update_db:
+        stat = db["users"].update_one(filter={"_id": email}, update={"$set": {"public": not public_val}}) 
+    if stat.matched_count == 0:
+            return False
+    return True
+    
 
 def save_profile_image(file, email) -> bool:
     encoded = base64.b64encode(file.read())
