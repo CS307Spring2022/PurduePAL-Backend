@@ -2,12 +2,12 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 from create_post import create_post, reactPost, save_post
-from create_user import sign_up, add_bio_to_user, getUserInfo, save_profile_image
+from create_user import sign_up, add_bio_to_user, getUserInfo, save_profile_image, update_public
 from delete_user_information import delete_post_from_db, delete_user_with_conf_code, delete_user_without_conf_code
 from follow import user_follow_topic, user_unfollow_topic, user1_follow_user2, user1_unfollow_user2, get_followers
 from helpers import safeget, db
 from timeline import get_post_thread, get_timeline, saved_posts
-from topics_stuff import get_topics, get_topic_posts
+from topics_stuff import get_topics
 from userLogin import login
 
 app = Flask(__name__)
@@ -73,15 +73,6 @@ def getTopics():
     return jsonify(topics)
 
 
-@app.route('/topic_posts', methods=['GET'])
-def getTopicPosts():
-    data = request.args.to_dict()
-    posts, success = get_topic_posts(data)
-    if len(posts) > 0 and safeget(posts[0], "val"):
-        posts[0]["logout"] = True
-    status_code = 200 if success else 400
-    return jsonify(posts), status_code
-
 @app.route('/createPost', methods=['POST'])
 def createPost():
     # file = request.files['profileImage']
@@ -146,6 +137,13 @@ def add_bio():
     status_code = 200 if added_bio else 403
     return jsonify({"return_code": added_bio}), status_code
 
+@app.route('/updatePublic', methods=['POST'])
+def make_private():
+    data = request.json
+    updated_public = update_public(data)
+    status_code = 200 if updated_public else 403
+    return jsonify({"return_code": updated_public}), status_code
+
 
 @app.route('/delete_post', methods=['POST'])
 def delete_post():
@@ -194,6 +192,7 @@ def savedPosts():
     posts, status_code = saved_posts(data)
     status_code = 200 if status_code else 400
     return jsonify(posts), status_code
+
 
 
 if __name__ == '__main__':
