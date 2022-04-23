@@ -7,7 +7,7 @@ from delete_user_information import delete_post_from_db, delete_user_with_conf_c
 from follow import user_follow_topic, user_unfollow_topic, user1_follow_user2, user1_unfollow_user2, get_followers
 from helpers import safeget, db
 from timeline import get_post_thread, get_timeline, saved_posts
-from topics_stuff import get_topics
+from topics_stuff import get_topics, get_topic_posts
 from userLogin import login
 
 app = Flask(__name__)
@@ -71,6 +71,16 @@ def getFollowers():
 def getTopics():
     topics = get_topics()
     return jsonify(topics)
+
+
+@app.route('/topic_posts', methods=['GET'])
+def getTopicPosts():
+    data = request.args.to_dict()
+    posts, success = get_topic_posts(data)
+    if len(posts) > 0 and safeget(posts[0], "val"):
+     posts[0]["logout"] = True
+    status_code = 200 if success else 400
+    return jsonify(posts), status_code
 
 
 @app.route('/createPost', methods=['POST'])
