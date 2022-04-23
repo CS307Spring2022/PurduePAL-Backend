@@ -5,7 +5,7 @@ from create_post import create_post, reactPost, save_post
 from create_user import sign_up, add_bio_to_user, getUserInfo, save_profile_image
 from delete_user_information import delete_post_from_db, delete_user_with_conf_code, delete_user_without_conf_code
 from follow import user_follow_topic, user_unfollow_topic, user1_follow_user2, user1_unfollow_user2, get_followers
-from helpers import safeget
+from helpers import safeget, db
 from timeline import get_post_thread, get_timeline, saved_posts
 from topics_stuff import get_topics
 from userLogin import login
@@ -49,6 +49,12 @@ def unfollow_user():
     data = request.json
     user1 = safeget(data, "follower")
     user2 = safeget(data, "following")
+    if not user2:
+        user2_username = safeget(data, "username")
+        user2_obj = db["users"].find_one({"username": user2_username})
+        if not user2_obj:
+            return jsonify({"message": False})
+        user2 = user2_obj["_id"]
     status = user1_unfollow_user2(user1, user2)
     return jsonify({"message": status})
 
