@@ -92,6 +92,7 @@ def getTimeline():
     status_code = 200 if success else 400
     return jsonify(posts), status_code
 
+
 @app.route('/postThread', methods=['GET', 'POST'])
 def getPostThread():
     data = request.json
