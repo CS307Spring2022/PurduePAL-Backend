@@ -148,7 +148,7 @@ def delete_user():
     if safeget(other_data, "confirmation_code"):
         status = delete_user_with_conf_code(other_data)
     else:
-        status = delete_user_without_conf_code(data)
+        status = delete_user_with_conf_code(data)
     return jsonify({"no": status})
 
 
