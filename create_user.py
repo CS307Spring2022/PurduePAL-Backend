@@ -99,7 +99,7 @@ def update_public(data: dict, update_db: bool = True) -> bool:
         stat = db["users"].update_one(filter={"_id": email}, update={"$set": {"public": not public_val}}) 
     if stat.matched_count == 0:
             return False
-    return True
+    return not public_val
     
 
 def save_profile_image(file, email) -> bool:

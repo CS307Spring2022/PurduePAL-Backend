@@ -147,6 +147,7 @@ def add_bio():
     status_code = 200 if added_bio else 403
     return jsonify({"return_code": added_bio}), status_code
 
+
 @app.route('/updatePublic', methods=['POST'])
 def make_private():
     data = request.json
