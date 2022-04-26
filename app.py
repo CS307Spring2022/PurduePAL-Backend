@@ -118,7 +118,7 @@ def getUser():
     if safeget(user_data, "password"):
         user_data.pop("password")
     user_data["match"] = data["loggedUser"] == data["profileUser"]
-    if (not user_data["public"]):
+    if (not user_data["public"] and not user_data["match"]):
         return jsonify({"msg": "Profile is Private!"}), 200
     return jsonify(user_data), 200
 
@@ -134,9 +134,9 @@ def sign_up_process():
 @app.route('/login', methods=['POST'])
 def login_process():
     data = request.json
-    loggedIn, email, username = login(data)
+    loggedIn, email, username,public,darkTheme = login(data)
     status_code = 200 if loggedIn else 403
-    return jsonify({"return_code": loggedIn, "email": email, "username": username}), status_code
+    return jsonify({"return_code": loggedIn, "email": email, "username": username,"public":public,"darkMode":darkTheme}), status_code
 
 
 @app.route('/updateUserInfo', methods=['POST'])
