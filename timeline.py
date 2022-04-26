@@ -78,6 +78,18 @@ def saved_posts(data) -> Tuple[List[dict], bool]:
         post["_id"] = loads(json_util.dumps(post["_id"]))["$oid"]
         if (post["parentID"]):
             post["parentID"] = loads(json_util.dumps(post["parentID"]))["$oid"]
+            parentPost = db["posts"].find_one({"_id": ObjectId(post["parentID"])})
+            # print(parentPost)
+            parentPoster = [u for u in db["users"].find({"_id": parentPost["user"]})][0]
+            parentPoster = {
+                "username": parentPoster["username"],
+                "email": parentPoster["_id"],
+                "firstName": parentPoster["firstName"],
+                "lastName": parentPoster["lastName"],
+                "public": parentPoster["public"]
+            }
+            post["parentUser"] = parentPoster["username"]
+
         for i in range(len(post["comments"])):
             post["comments"][i] = loads(json_util.dumps(post["comments"][i]))["$oid"]
         posts_dict.append(post)
