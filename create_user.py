@@ -66,7 +66,7 @@ def sign_up(data: dict, testing=False) -> Tuple[int, str]:
                                              "username": username, "password": encrypt_password(password),
                                              "public": True, "bio": "", "profilePic": "",
                                              "topicsFollowing": [], "usersFollowing": [], "followingUsers": [],
-                                             "originalPosts": [], "responsePosts": [], "likedPosts": [], "dislikedPosts": [], "savedPosts": []})
+                                             "originalPosts": [], "responsePosts": [], "likedPosts": [], "dislikedPosts": [], "savedPosts": [], "darkMode": True})
         if not return_val.acknowledged:
             return 500, "mongodb error"
     return 200, "success"
