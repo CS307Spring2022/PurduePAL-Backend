@@ -25,33 +25,43 @@ def get_timeline(data: dict) -> Tuple[List[dict], bool]:
 
     posts_dict = []
     for post in posts_cursor:
-        if (post["contentType"] == 0):
-            post["_id"] = loads(json_util.dumps(post["_id"]))["$oid"]
-            post["reactionType"] = 0
-            post["isSaved"] = False
-            if (post["_id"] in likedPosts):
-                post["reactionType"] = 1
-            elif (post["_id"] in dislikedPosts):
-                post["reactionType"] = 2
-            
-            if (post['_id'] in savedPosts):
-                post["isSaved"] = True
+        post["_id"] = loads(json_util.dumps(post["_id"]))["$oid"]
+        post["reactionType"] = 0
+        post["isSaved"] = False
+        if (post["_id"] in likedPosts):
+            post["reactionType"] = 1
+        elif (post["_id"] in dislikedPosts):
+            post["reactionType"] = 2
+        
+        if (post['_id'] in savedPosts):
+            post["isSaved"] = True
 
-            if (post["parentID"]):
-                post["parentID"] = loads(json_util.dumps(post["parentID"]))["$oid"]
-            for i in range(len(post["comments"])):
-                post["comments"][i] = loads(json_util.dumps(post["comments"][i]))["$oid"]
-            posts_dict.append(post)
-
-            poster = [u for u in db["users"].find({"_id": post["user"]})][0]
-            poster = {
-                "username": poster["username"],
-                "email": poster["_id"],
-                "firstName": poster["firstName"],
-                "lastName": poster["lastName"],
-                "public": poster["public"]
+        if (post["parentID"]):
+            post["parentID"] = loads(json_util.dumps(post["parentID"]))["$oid"]
+            parentPost = db["posts"].find_one({"_id": ObjectId(post["parentID"])})
+            # print(parentPost)
+            parentPoster = [u for u in db["users"].find({"_id": parentPost["user"]})][0]
+            parentPoster = {
+                "username": parentPoster["username"],
+                "email": parentPoster["_id"],
+                "firstName": parentPoster["firstName"],
+                "lastName": parentPoster["lastName"],
+                "public": parentPoster["public"]
             }
-            post["user"] = poster
+            post["parentUser"] = parentPoster["username"]
+        for i in range(len(post["comments"])):
+            post["comments"][i] = loads(json_util.dumps(post["comments"][i]))["$oid"]
+        posts_dict.append(post)
+
+        poster = [u for u in db["users"].find({"_id": post["user"]})][0]
+        poster = {
+            "username": poster["username"],
+            "email": poster["_id"],
+            "firstName": poster["firstName"],
+            "lastName": poster["lastName"],
+            "public": poster["public"]
+        }
+        post["user"] = poster
 
     return posts_dict, True
 
@@ -65,24 +75,23 @@ def saved_posts(data) -> Tuple[List[dict], bool]:
 
     posts_dict = []
     for post in posts_cursor:
-        if (post["contentType"] == 0):
-            post["_id"] = loads(json_util.dumps(post["_id"]))["$oid"]
-            if (post["parentID"]):
-                post["parentID"] = loads(json_util.dumps(post["parentID"]))["$oid"]
-            for i in range(len(post["comments"])):
-                post["comments"][i] = loads(json_util.dumps(post["comments"][i]))["$oid"]
-            posts_dict.append(post)
+        post["_id"] = loads(json_util.dumps(post["_id"]))["$oid"]
+        if (post["parentID"]):
+            post["parentID"] = loads(json_util.dumps(post["parentID"]))["$oid"]
+        for i in range(len(post["comments"])):
+            post["comments"][i] = loads(json_util.dumps(post["comments"][i]))["$oid"]
+        posts_dict.append(post)
 
-            poster = [u for u in db["users"].find({"_id": post["user"]})][0]
-            poster = {
-                "username": poster["username"],
-                "email": poster["_id"],
-                "firstName": poster["firstName"],
-                "lastName": poster["lastName"],
-                "public": poster["public"]
-            }
-            post["isSaved"] = True
-            post["user"] = poster
+        poster = [u for u in db["users"].find({"_id": post["user"]})][0]
+        poster = {
+            "username": poster["username"],
+            "email": poster["_id"],
+            "firstName": poster["firstName"],
+            "lastName": poster["lastName"],
+            "public": poster["public"]
+        }
+        post["isSaved"] = True
+        post["user"] = poster
 
     return posts_dict, True
 
@@ -106,32 +115,44 @@ def get_post_thread(data):
     dislikedPosts = [loads(json_util.dumps(post["post"]))["$oid"] for post in user["dislikedPosts"]]
     savedPosts = [str(post) for post in user["savedPosts"]]
 
-    if (parentPost["contentType"] == 0):
-        parentPost["_id"] = loads(json_util.dumps(parentPost["_id"]))["$oid"]
-        parentPost["reactionType"] = 0
-        parentPost["isSaved"] = False
-        if (str(parentPost["_id"]) in likedPosts):
-            parentPost["reactionType"] = 1
-        elif (str(parentPost["_id"]) in dislikedPosts):
-            parentPost["reactionType"] = 2
-        
-        if (str(parentPost['_id']) in savedPosts):
-            parentPost["isSaved"] = True
+    parentPost["_id"] = loads(json_util.dumps(parentPost["_id"]))["$oid"]
+    parentPost["reactionType"] = 0
+    parentPost["isSaved"] = False
+    if (str(parentPost["_id"]) in likedPosts):
+        parentPost["reactionType"] = 1
+    elif (str(parentPost["_id"]) in dislikedPosts):
+        parentPost["reactionType"] = 2
+    
+    if (str(parentPost['_id']) in savedPosts):
+        parentPost["isSaved"] = True
 
-        if (parentPost["parentID"]):
-            parentPost["parentID"] = loads(json_util.dumps(parentPost["parentID"]))["$oid"]
-        for i in range(len(parentPost["comments"])):
-            parentPost["comments"][i] = loads(json_util.dumps(parentPost["comments"][i]))["$oid"]
-
-        poster = [u for u in db["users"].find({"_id": parentPost["user"]})][0]
-        poster = {
-            "username": poster["username"],
-            "email": poster["_id"],
-            "firstName": poster["firstName"],
-            "lastName": poster["lastName"],
-            "public": poster["public"]
+    if (parentPost["parentID"]):
+        parentPost["parentID"] = loads(json_util.dumps(parentPost["parentID"]))["$oid"]
+        parentParentPost = db["posts"].find_one({"_id": ObjectId(parentPost["parentID"])})
+        # print(parentPost)
+        parentPoster = [u for u in db["users"].find({"_id": parentParentPost["user"]})][0]
+        parentPoster = {
+            "username": parentPoster["username"],
+            "email": parentPoster["_id"],
+            "firstName": parentPoster["firstName"],
+            "lastName": parentPoster["lastName"],
+            "public": parentPoster["public"]
         }
-        parentPost["user"] = poster
+        print(parentPoster["username"])
+        parentPost["parentUser"] = parentPoster["username"]
+
+    for i in range(len(parentPost["comments"])):
+        parentPost["comments"][i] = loads(json_util.dumps(parentPost["comments"][i]))["$oid"]
+
+    poster = [u for u in db["users"].find({"_id": parentPost["user"]})][0]
+    poster = {
+        "username": poster["username"],
+        "email": poster["_id"],
+        "firstName": poster["firstName"],
+        "lastName": poster["lastName"],
+        "public": poster["public"]
+    }
+    parentPost["user"] = poster
 
     ret_dict["parentPost"] = parentPost
 
@@ -145,33 +166,43 @@ def get_post_thread(data):
         # print(comment)
         post = db["posts"].find_one({"_id":ObjectId(comment)})
         # print(post)
-        if (post["contentType"] == 0):
-            post["_id"] = loads(json_util.dumps(post["_id"]))["$oid"]
-            post["reactionType"] = 0
-            post["isSaved"] = False
-            if (post["_id"] in likedPosts):
-                post["reactionType"] = 1
-            elif (post["_id"] in dislikedPosts):
-                post["reactionType"] = 2
-            
-            if (post['_id'] in savedPosts):
-                post["isSaved"] = True
+        post["_id"] = loads(json_util.dumps(post["_id"]))["$oid"]
+        post["reactionType"] = 0
+        post["isSaved"] = False
+        if (post["_id"] in likedPosts):
+            post["reactionType"] = 1
+        elif (post["_id"] in dislikedPosts):
+            post["reactionType"] = 2
+        
+        if (post['_id'] in savedPosts):
+            post["isSaved"] = True
 
-            if (post["parentID"]):
-                post["parentID"] = loads(json_util.dumps(post["parentID"]))["$oid"]
-            for i in range(len(post["comments"])):
-                post["comments"][i] = loads(json_util.dumps(post["comments"][i]))["$oid"]
-
-            poster = [u for u in db["users"].find({"_id": post["user"]})][0]
-            poster = {
-                "username": poster["username"],
-                "email": poster["_id"],
-                "firstName": poster["firstName"],
-                "lastName": poster["lastName"],
-                "public": poster["public"]
+        if (post["parentID"]):
+            post["parentID"] = loads(json_util.dumps(post["parentID"]))["$oid"]
+            parentPost = db["posts"].find_one({"_id": ObjectId(post["parentID"])})
+            # print(parentPost)
+            parentPoster = [u for u in db["users"].find({"_id": parentPost["user"]})][0]
+            parentPoster = {
+                "username": parentPoster["username"],
+                "email": parentPoster["_id"],
+                "firstName": parentPoster["firstName"],
+                "lastName": parentPoster["lastName"],
+                "public": parentPoster["public"]
             }
-            post["user"] = poster
-            posts_dict.append(post)
+            post["parentUser"] = parentPoster["username"]
+        for i in range(len(post["comments"])):
+            post["comments"][i] = loads(json_util.dumps(post["comments"][i]))["$oid"]
+
+        poster = [u for u in db["users"].find({"_id": post["user"]})][0]
+        poster = {
+            "username": poster["username"],
+            "email": poster["_id"],
+            "firstName": poster["firstName"],
+            "lastName": poster["lastName"],
+            "public": poster["public"]
+        }
+        post["user"] = poster
+        posts_dict.append(post)
 
     ret_dict["comments"] = posts_dict
 
