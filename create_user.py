@@ -2,7 +2,7 @@ import base64
 from json import loads
 from typing import Tuple
 
-from bson import json_util
+from bson import json_util, ObjectId
 
 from helpers import safeget, db, check_for_data, encrypt_password
 from userVerification import checkEmail, checkUsername, checkPasswordLength
@@ -13,12 +13,14 @@ def getUserInfo(data: dict) -> dict:
         return {}
     user = safeget(data, "profileUser")
     info = db["users"].find_one({"username": user})
+    info["interactedPostsObject"] = getInteractedPosts(info)
+    info["createdPostsObject"] = getCreatedPosts(info)
     for i in range(len(info["originalPosts"])):
         info["originalPosts"][i] = loads(json_util.dumps(info["originalPosts"][i]["post"]))
     for i in range(len(info["responsePosts"])):
         info["responsePosts"][i] = loads(json_util.dumps(info["responsePosts"][i]["post"]))
     for i in range(len(info["likedPosts"])):
-        print(info["likedPosts"][i])
+        # print(info["likedPosts"][i])
         info["likedPosts"][i] = loads(json_util.dumps(info["likedPosts"][i]["post"]))
     for i in range(len(info["dislikedPosts"])):
         info["dislikedPosts"][i] = loads(json_util.dumps(info["dislikedPosts"][i]["post"]))
@@ -40,8 +42,100 @@ def getUserInfo(data: dict) -> dict:
         info["profilePic"] = str(info["profilePic"])
         info["profilePic"] = info["profilePic"][2:(len(info["profilePic"]) - 1)]
         info["profilePic"] = "data:image/png;base64," + info["profilePic"]
-
     return info
+
+
+def getCreatedPosts(info: dict) -> list:
+    saved_ids = info["originalPosts"]
+    saved_ids.extend(info["responsePosts"])
+    saved_ids = [saved_id["post"] for saved_id in saved_ids]
+    posts_cursor = db["posts"].find({"_id": {"$in": saved_ids}})
+
+    posts_dict = []
+    for post in posts_cursor:
+        post["_id"] = loads(json_util.dumps(post["_id"]))["$oid"]
+        if post["parentID"]:
+            post["parentID"] = loads(json_util.dumps(post["parentID"]))["$oid"]
+            parentPost = db["posts"].find_one({"_id": ObjectId(post["parentID"])})
+            # print(parentPost)
+            parentPoster = [u for u in db["users"].find({"_id": parentPost["user"]})][0]
+            parentPoster = {
+                "username": parentPoster["username"],
+                "email": parentPoster["_id"],
+                "firstName": parentPoster["firstName"],
+                "lastName": parentPoster["lastName"],
+                "public": parentPoster["public"]
+            }
+            post["parentUser"] = parentPoster["username"]
+
+        for i in range(len(post["comments"])):
+            post["comments"][i] = loads(json_util.dumps(post["comments"][i]))["$oid"]
+        posts_dict.append(post)
+
+        poster = info
+        poster = {
+            "username": poster["username"],
+            "email": poster["_id"],
+            "firstName": poster["firstName"],
+            "lastName": poster["lastName"],
+            "public": poster["public"]
+        }
+        isSaved = False
+        for savedPost in info["savedPosts"]:
+            if savedPost["post"] == post["_id"]:
+                isSaved = True
+                break
+        post["isSaved"] = isSaved
+        post["user"] = poster
+
+    return posts_dict
+
+
+def getInteractedPosts(info: dict) -> list:
+    saved_ids = info["likedPosts"]
+    saved_ids.extend(info["dislikedPosts"])
+    # print(saved_ids)
+    saved_ids = [saved_id["post"] for saved_id in saved_ids]
+    posts_cursor = db["posts"].find({"_id": {"$in": saved_ids}})
+
+    posts_dict = []
+    for post in posts_cursor:
+        post["_id"] = loads(json_util.dumps(post["_id"]))["$oid"]
+        if post["parentID"]:
+            post["parentID"] = loads(json_util.dumps(post["parentID"]))["$oid"]
+            parentPost = db["posts"].find_one({"_id": ObjectId(post["parentID"])})
+            # print(parentPost)
+            parentPoster = [u for u in db["users"].find({"_id": parentPost["user"]})][0]
+            parentPoster = {
+                "username": parentPoster["username"],
+                "email": parentPoster["_id"],
+                "firstName": parentPoster["firstName"],
+                "lastName": parentPoster["lastName"],
+                "public": parentPoster["public"]
+            }
+            post["parentUser"] = parentPoster["username"]
+
+        for i in range(len(post["comments"])):
+            post["comments"][i] = loads(json_util.dumps(post["comments"][i]))["$oid"]
+        posts_dict.append(post)
+
+        poster = info
+        poster = {
+            "username": poster["username"],
+            "email": poster["_id"],
+            "firstName": poster["firstName"],
+            "lastName": poster["lastName"],
+            "public": poster["public"]
+        }
+        isSaved = False
+        for savedPost in info["savedPosts"]:
+            if savedPost["post"] == post["_id"]:
+                isSaved = True
+                break
+        post["isSaved"] = isSaved
+        post["user"] = poster
+
+    return posts_dict
 
 
 def sign_up(data: dict, testing=False) -> Tuple[int, str]:
@@ -89,6 +183,7 @@ def add_bio_to_user(data: dict, update_db: bool = True) -> bool:
             return False
     return True
 
+
 def update_public(data: dict, update_db: bool = True) -> bool:
     if not check_for_data(data, "email"):
         print("hit1")
@@ -98,9 +193,9 @@ def update_public(data: dict, update_db: bool = True) -> bool:
     public_val = safeget(data, "public")
     if update_db:
         stat = db["users"].update_one(filter={"_id": email}, update={"$set": {"public": not public_val}}) 
-    if stat.matched_count == 0:
-        print("hit2")
-        return False
+        if stat.matched_count == 0:
+            print("hit2")
+            return False
     return True
     
 

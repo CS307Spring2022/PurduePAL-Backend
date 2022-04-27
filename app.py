@@ -118,7 +118,7 @@ def getUser():
     if safeget(user_data, "password"):
         user_data.pop("password")
     user_data["match"] = data["loggedUser"] == data["profileUser"]
-    if (not user_data["public"] and not user_data["match"]):
+    if not user_data["public"] and not user_data["match"]:
         return jsonify({"msg": "Profile is Private!"}), 200
     return jsonify(user_data), 200
 
