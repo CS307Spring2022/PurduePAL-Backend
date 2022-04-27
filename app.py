@@ -67,7 +67,7 @@ def getFollowers():
     return jsonify(data), return_code
 
 
-@app.route('/topics', methods=['GET'])
+@app.route('/topics', methods=['GET', 'POST'])
 def getTopics():
     topics = get_topics()
     return jsonify(topics)
