@@ -17,11 +17,12 @@ def get_timeline(data: dict) -> Tuple[List[dict], bool]:
 
     likedPosts = [loads(json_util.dumps(post["post"]))["$oid"] for post in user["likedPosts"]]
     dislikedPosts = [loads(json_util.dumps(post["post"]))["$oid"] for post in user["dislikedPosts"]]
-    savedPosts = [str(post) for post in user["savedPosts"]]
+    savedPosts = [post["post"] for post in user["savedPosts"]]
 
     # print(likedPosts)
 
-    posts_cursor = db["posts"].find({"topic": {"$in": topics_following}})
+    posts_cursor = db["posts"].find({"$or": [{"topic": {"$in": topics_following}}, {"user": {"$in": users_following}}]},
+                                    sort=[("timestamp", 1)])
 
     posts_dict = []
     for post in posts_cursor:
@@ -32,8 +33,8 @@ def get_timeline(data: dict) -> Tuple[List[dict], bool]:
             post["reactionType"] = 1
         elif (post["_id"] in dislikedPosts):
             post["reactionType"] = 2
-        
-        if (post['_id'] in savedPosts):
+        # print(savedPosts)
+        if (ObjectId(post['_id']) in savedPosts):
             post["isSaved"] = True
 
         if (post["parentID"]):
@@ -69,14 +70,19 @@ def get_timeline(data: dict) -> Tuple[List[dict], bool]:
 def saved_posts(data) -> Tuple[List[dict], bool]:
     if not safeget(data, "email"):
         return [{"val": "hi"}], False
+    user_id = safeget(data, "email")
     saved_ids = db["users"].find_one({"_id": safeget(data, "email")})["savedPosts"]
     saved_ids = [saved_id["post"] for saved_id in saved_ids]
     posts_cursor = db["posts"].find({"_id": {"$in": saved_ids}})
+    user = [u for u in db["users"].find({"_id": user_id})]
+    if len(user) == 0:
+        return [{"val": "hi"}], False
+    user = user[0]
 
     posts_dict = []
     for post in posts_cursor:
         post["_id"] = loads(json_util.dumps(post["_id"]))["$oid"]
-        if (post["parentID"]):
+        if post["parentID"]:
             post["parentID"] = loads(json_util.dumps(post["parentID"]))["$oid"]
             parentPost = db["posts"].find_one({"_id": ObjectId(post["parentID"])})
             # print(parentPost)
@@ -93,7 +99,14 @@ def saved_posts(data) -> Tuple[List[dict], bool]:
         for i in range(len(post["comments"])):
             post["comments"][i] = loads(json_util.dumps(post["comments"][i]))["$oid"]
         posts_dict.append(post)
-
+        post["reactionType"] = 0
+        post["isSaved"] = False
+        likedPosts = [loads(json_util.dumps(post["post"]))["$oid"] for post in user["likedPosts"]]
+        dislikedPosts = [loads(json_util.dumps(post["post"]))["$oid"] for post in user["dislikedPosts"]]
+        if (post["_id"] in likedPosts):
+            post["reactionType"] = 1
+        elif (post["_id"] in dislikedPosts):
+            post["reactionType"] = 2
         poster = [u for u in db["users"].find({"_id": post["user"]})][0]
         poster = {
             "username": poster["username"],
@@ -110,7 +123,7 @@ def saved_posts(data) -> Tuple[List[dict], bool]:
 
 def get_post_thread(data):
     user_id = safeget(data, "email", default="anonymous@purdue.edu")
-    post_id = safeget(data,"postId")
+    post_id = safeget(data, "postId")
     ret_dict = {}
 
     user = [u for u in db["users"].find({"_id": user_id})]
@@ -122,7 +135,7 @@ def get_post_thread(data):
     topics_following = user["topicsFollowing"]
 
     parentPost = db["posts"].find_one({"_id": ObjectId(post_id)})
-    
+
     likedPosts = [loads(json_util.dumps(post["post"]))["$oid"] for post in user["likedPosts"]]
     dislikedPosts = [loads(json_util.dumps(post["post"]))["$oid"] for post in user["dislikedPosts"]]
     savedPosts = [str(post) for post in user["savedPosts"]]
@@ -134,7 +147,7 @@ def get_post_thread(data):
         parentPost["reactionType"] = 1
     elif (str(parentPost["_id"]) in dislikedPosts):
         parentPost["reactionType"] = 2
-    
+
     if (str(parentPost['_id']) in savedPosts):
         parentPost["isSaved"] = True
 
@@ -172,11 +185,10 @@ def get_post_thread(data):
     dislikedPosts = [loads(json_util.dumps(post["post"]))["$oid"] for post in user["dislikedPosts"]]
     savedPosts = [str(post) for post in user["savedPosts"]]
 
-
     posts_dict = []
     for comment in parentPost["comments"]:
         # print(comment)
-        post = db["posts"].find_one({"_id":ObjectId(comment)})
+        post = db["posts"].find_one({"_id": ObjectId(comment)})
         # print(post)
         post["_id"] = loads(json_util.dumps(post["_id"]))["$oid"]
         post["reactionType"] = 0
@@ -185,7 +197,7 @@ def get_post_thread(data):
             post["reactionType"] = 1
         elif (post["_id"] in dislikedPosts):
             post["reactionType"] = 2
-        
+
         if (post['_id'] in savedPosts):
             post["isSaved"] = True
 
