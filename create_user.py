@@ -13,8 +13,8 @@ def getUserInfo(data: dict) -> dict:
         return {}
     user = safeget(data, "profileUser")
     info = db["users"].find_one({"username": user})
-    info["interactedPostsObject"] = getInteractedPosts(info)
-    info["createdPostsObject"] = getCreatedPosts(info)
+    info["interactedPostsObject"] = list(reversed(getInteractedPosts(info)))
+    info["createdPostsObject"] = list(reversed(getCreatedPosts(info)))
     for i in range(len(info["originalPosts"])):
         info["originalPosts"][i] = loads(json_util.dumps(info["originalPosts"][i]["post"]))
     for i in range(len(info["responsePosts"])):
@@ -26,7 +26,7 @@ def getUserInfo(data: dict) -> dict:
         info["dislikedPosts"][i] = loads(json_util.dumps(info["dislikedPosts"][i]["post"]))
     for i in range(len(info["savedPosts"])):
         info["savedPosts"][i] = loads(json_util.dumps(info["savedPosts"][i]["post"]))
-    
+
     for i, user in enumerate(info["usersFollowing"]):
         user_info = db["users"].find_one({"_id": user})
         info["usersFollowing"][i] = {"name": user_info["firstName"] + " " + user_info["lastName"],
@@ -38,7 +38,7 @@ def getUserInfo(data: dict) -> dict:
             info["loggedFollows"] = True
         info["followingUsers"][i] = {"name": user_info["firstName"] + " " + user_info["lastName"],
                                      "username": user_info["username"]}
-    if (safeget(info,"profilePic")):
+    if (safeget(info, "profilePic")):
         info["profilePic"] = str(info["profilePic"])
         info["profilePic"] = info["profilePic"][2:(len(info["profilePic"]) - 1)]
         info["profilePic"] = "data:image/png;base64," + info["profilePic"]
@@ -50,7 +50,7 @@ def getCreatedPosts(info: dict) -> list:
     saved_ids.extend(info["responsePosts"])
     saved_ids = [saved_id["post"] for saved_id in saved_ids]
     posts_cursor = db["posts"].find({"_id": {"$in": saved_ids}})
-
+    savedPosts = [str(post) for post in info["savedPosts"]]
     posts_dict = []
     for post in posts_cursor:
         post["_id"] = loads(json_util.dumps(post["_id"]))["$oid"]
@@ -67,12 +67,20 @@ def getCreatedPosts(info: dict) -> list:
                 "public": parentPoster["public"]
             }
             post["parentUser"] = parentPoster["username"]
-
+        post["reactionType"] = 0
+        post["isSaved"] = False
+        if (ObjectId(post["_id"]) in [ps["post"] for ps in info["likedPosts"]]):
+            post["reactionType"] = 1
+        elif (ObjectId(post["_id"]) in [ps["post"] for ps in info["dislikedPosts"]]):
+            post["reactionType"] = 2
+        if (ObjectId(post["_id"]) in [ps["post"] for ps in info["savedPosts"]]):
+            post["isSaved"] = True
         for i in range(len(post["comments"])):
             post["comments"][i] = loads(json_util.dumps(post["comments"][i]))["$oid"]
         posts_dict.append(post)
 
         poster = info
+        print(info)
         poster = {
             "username": poster["username"],
             "email": poster["_id"],
@@ -80,12 +88,6 @@ def getCreatedPosts(info: dict) -> list:
             "lastName": poster["lastName"],
             "public": poster["public"]
         }
-        isSaved = False
-        for savedPost in info["savedPosts"]:
-            if savedPost["post"] == post["_id"]:
-                isSaved = True
-                break
-        post["isSaved"] = isSaved
         post["user"] = poster
 
     return posts_dict
@@ -97,7 +99,7 @@ def getInteractedPosts(info: dict) -> list:
     # print(saved_ids)
     saved_ids = [saved_id["post"] for saved_id in saved_ids]
     posts_cursor = db["posts"].find({"_id": {"$in": saved_ids}})
-
+    savedPosts = [str(post) for post in info["savedPosts"]]
     posts_dict = []
     for post in posts_cursor:
         post["_id"] = loads(json_util.dumps(post["_id"]))["$oid"]
@@ -114,12 +116,19 @@ def getInteractedPosts(info: dict) -> list:
                 "public": parentPoster["public"]
             }
             post["parentUser"] = parentPoster["username"]
-
+        post["reactionType"] = 0
+        post["isSaved"] = False
+        if (ObjectId(post["_id"]) in [ps["post"] for ps in info["likedPosts"]]):
+            post["reactionType"] = 1
+        elif (ObjectId(post["_id"]) in [ps["post"] for ps in info["dislikedPosts"]]):
+            post["reactionType"] = 2
+        if (ObjectId(post["_id"]) in [ps["post"] for ps in info["savedPosts"]]):
+            post["isSaved"] = True
         for i in range(len(post["comments"])):
             post["comments"][i] = loads(json_util.dumps(post["comments"][i]))["$oid"]
         posts_dict.append(post)
 
-        poster = info
+        poster = db["users"].find_one({"_id": post["user"]})
         poster = {
             "username": poster["username"],
             "email": poster["_id"],
@@ -160,7 +169,8 @@ def sign_up(data: dict, testing=False) -> Tuple[int, str]:
                                              "username": username, "password": encrypt_password(password),
                                              "public": True, "bio": "", "profilePic": "",
                                              "topicsFollowing": [], "usersFollowing": [], "followingUsers": [],
-                                             "originalPosts": [], "responsePosts": [], "likedPosts": [], "dislikedPosts": [], "savedPosts": [], "darkMode": True})
+                                             "originalPosts": [], "responsePosts": [], "likedPosts": [],
+                                             "dislikedPosts": [], "savedPosts": [], "darkMode": True})
         if not return_val.acknowledged:
             return 500, "mongodb error"
     return 200, "success"
@@ -188,16 +198,16 @@ def update_public(data: dict, update_db: bool = True) -> bool:
     if not check_for_data(data, "email"):
         print("hit1")
         return False
-    
+
     email = safeget(data, "email")
     public_val = safeget(data, "public")
     if update_db:
-        stat = db["users"].update_one(filter={"_id": email}, update={"$set": {"public": not public_val}}) 
+        stat = db["users"].update_one(filter={"_id": email}, update={"$set": {"public": not public_val}})
         if stat.matched_count == 0:
             print("hit2")
             return False
     return True
-    
+
 
 def save_profile_image(file, email) -> bool:
     encoded = base64.b64encode(file.read())

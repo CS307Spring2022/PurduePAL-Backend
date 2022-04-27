@@ -1,9 +1,12 @@
 import unittest
+from collections import defaultdict
 
 import helpers
-from create_user import add_bio_to_user, sign_up, update_public
+from create_post import reactPost
+from create_user import add_bio_to_user, sign_up, update_public, getUserInfo
 from follow import user1_follow_user2, user1_unfollow_user2, user_follow_topic, user_unfollow_topic
 from helpers import encrypt_password, check_password
+from timeline import get_timeline
 from userLogin import login
 from userVerification import unique_user
 
@@ -140,19 +143,123 @@ class UserActions(unittest.TestCase):
     def testPrivatePublic(self):
         data = {
             "email": "anonymous@purdue.edu",
-            "public": True
+            "public": False
         }
         update_public(data)
-        self.assertFalse(helpers.db["users"].find_one({"_id": data["email"]})["public"])
-        data["public"] = False
-        update_public(data)
         self.assertTrue(helpers.db["users"].find_one({"_id": data["email"]})["public"])
+        data["public"] = True
+        update_public(data)
+        self.assertFalse(helpers.db["users"].find_one({"_id": data["email"]})["public"])
+
 
 class PostTests(unittest.TestCase):
     def testCommentTopicName(self):
         comment = helpers.db["posts"].find_one({"parentID": {"$ne": None}})
         parent = helpers.db["posts"].find_one({"_id": comment["parentID"]})
         self.assertEqual(parent["topic"], comment["topic"])
+
+    data = {"email": "alice93@purdue.edu"}
+
+    def testTimelineExists(self):
+        timeline, ret = get_timeline(self.data)
+        self.assertTrue(ret)
+        self.timeline = timeline
+
+    def testTimelineTopicFollow(self):
+        self.timeline, ret = get_timeline(self.data)
+        user = helpers.db["users"].find_one({"_id": self.data["email"]})
+        for post in self.timeline:
+            for topic in user["topicsFollowing"]:
+                if post["topic"] == topic:
+                    return
+        self.fail("Couldn't find a post in the timeline from a topic you follow.")
+
+    def testTimelineUserFollow(self):
+        self.timeline, ret = get_timeline(self.data)
+        user = helpers.db["users"].find_one({"_id": self.data["email"]})
+        # print(user["usersFollowing"])
+        for post in self.timeline:
+            for user in user["usersFollowing"]:
+                # print(user, post["user"]["email"])
+                if post["user"]["email"] == user:
+                    return
+        self.fail("Couldn't find a post in the timeline from a person you follow.")
+
+    def testProfileViewLoggedOut(self):
+        data = defaultdict()
+        data["profileUser"] = "raj123"
+        self.assertNotEqual(getUserInfo(data), {})
+
+    def testProfileViewLoggedIn(self):
+        data = defaultdict()
+        data["profileUser"] = "raj123"
+        data["loggedUser"] = "raj123"
+        self.assertNotEqual(getUserInfo(data), {})
+
+    def testTimelineChronologicalSort(self):
+        timeline, ret = get_timeline(self.data)
+        for i in range(1, len(timeline)):
+            if timeline[i]["timestamp"] < timeline[i - 1]["timestamp"]:  # backend is reversed
+                self.fail("Timeline is out of order")
+
+
+class UserlineTests(unittest.TestCase):
+    def testUserlineChronologicalSort(self):
+        data = defaultdict()
+        data["profileUser"] = "raj123"
+        data["loggedUser"] = "raj123"
+        timeline = getUserInfo(data)
+        print(timeline)
+        timeline = timeline["createdPostsObject"]
+        for i in range(1, len(timeline)):
+            if timeline[i]["timestamp"] > timeline[i - 1]["timestamp"]:  # backend is reversed
+                self.fail("Timeline is out of order")
+
+    def testPrivateUserline(self):
+        data = {"profileUser": "anonymous"}
+        userline = getUserInfo(data)
+        if userline["public"]:
+            self.fail("Private account viewable")
+
+    def testUserlineInteractionsChronologicalSort(self):
+        data = defaultdict()
+        data["profileUser"] = "raj123"
+        data["loggedUser"] = "raj123"
+        timeline = getUserInfo(data)
+        print(timeline)
+        timeline = timeline["interactedPostsObject"]
+        for i in range(1, len(timeline)):
+            if timeline[i]["timestamp"] > timeline[i - 1]["timestamp"]:  # backend is reversed
+                self.fail("Timeline is out of order")
+
+    def testPrivateUserlineInteractions(self):
+        data = {"profileUser": "anonymous"}
+        userline = getUserInfo(data)
+        if userline["public"]:
+            self.fail("Private account viewable")
+
+
+class CommentReactions(unittest.TestCase):
+    data = {
+        "postID": "626602df0e6e0e5e43f5b343",
+        "email": "anonymous@purdue.edu"
+    }
+
+    def testLikeComment(self):
+        self.data["interaction"] = 1
+        self.assertTrue(reactPost(self.data))
+
+    def testDisLikeComment(self):
+        self.data["interaction"] = 2
+        self.assertTrue(reactPost(self.data))
+
+    def testUnlikeComment(self):
+        self.data["interaction"] = 3
+        self.assertTrue(reactPost(self.data))
+
+    def testunDisLikeComment(self):
+        self.data["interaction"] = 4
+        self.assertTrue(reactPost(self.data))
 
 
 if __name__ == '__main__':
