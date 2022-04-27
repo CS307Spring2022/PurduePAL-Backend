@@ -1,7 +1,7 @@
 import unittest
 
 import helpers
-from create_user import add_bio_to_user, sign_up
+from create_user import add_bio_to_user, sign_up, update_public
 from follow import user1_follow_user2, user1_unfollow_user2, user_follow_topic, user_unfollow_topic
 from helpers import encrypt_password, check_password
 from userLogin import login
@@ -137,6 +137,16 @@ class UserActions(unittest.TestCase):
         self.assertFalse(ret)
         self.assertFalse(self.topic_id in helpers.db["users"].find_one(self.user1id)["topicsFollowing"])
 
+    def testPrivatePublic(self):
+        data = {
+            "email": "anonymous@purdue.edu",
+            "public": True
+        }
+        update_public(data)
+        self.assertFalse(helpers.db["users"].find_one({"_id": data["email"]})["public"])
+        data["public"] = False
+        update_public(data)
+        self.assertTrue(helpers.db["users"].find_one({"_id": data["email"]})["public"])
 
 class PostTests(unittest.TestCase):
     def testCommentTopicName(self):
