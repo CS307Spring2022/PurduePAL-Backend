@@ -51,7 +51,7 @@ class SignUpTests(unittest.TestCase):
         }
         yay, email, username, _, _ = login(login_data)
         self.assertFalse(yay)
-        login_data["password"] = "lol"
+        login_data["password"] = "Anonymous123!"
         yay, email, username, _, _ = login(login_data)
         self.assertTrue(yay)
         self.assertEqual("anonymous@purdue.edu", email)
@@ -136,6 +136,13 @@ class UserActions(unittest.TestCase):
         ret, _ = user_unfollow_topic(data)
         self.assertFalse(ret)
         self.assertFalse(self.topic_id in helpers.db["users"].find_one(self.user1id)["topicsFollowing"])
+
+
+class PostTests(unittest.TestCase):
+    def testCommentTopicName(self):
+        comment = helpers.db["posts"].find_one({"parentID": {"$ne": None}})
+        parent = helpers.db["posts"].find_one({"_id": comment["parentID"]})
+        self.assertEqual(parent["topic"], comment["topic"])
 
 
 if __name__ == '__main__':

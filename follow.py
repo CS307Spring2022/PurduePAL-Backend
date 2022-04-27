@@ -44,7 +44,7 @@ def user_unfollow_topic(data):
     topic = safeget(data, "topic")
     user = db["users"].find_one({"_id": email})
     if not user:
-        return False
+        return False, "User doesn't exist"
 
     if topic not in user["topicsFollowing"]:
         return False, "User already unfollowed topic!"
