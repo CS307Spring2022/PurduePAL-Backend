@@ -49,10 +49,10 @@ class SignUpTests(unittest.TestCase):
             "email": "anonymous@purdue.edu",
             "password": ""
         }
-        yay, email, username = login(login_data)
+        yay, email, username, _, _ = login(login_data)
         self.assertFalse(yay)
         login_data["password"] = "lol"
-        yay, email, username = login(login_data)
+        yay, email, username, _, _ = login(login_data)
         self.assertTrue(yay)
         self.assertEqual("anonymous@purdue.edu", email)
         self.assertEqual("anonymous", username)
